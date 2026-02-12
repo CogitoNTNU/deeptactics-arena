@@ -119,6 +119,12 @@ This project would not have been possible without the hard work and dedication o
             </a>
         </td>
         -->
+        <td align="center">
+            <a href="https://github.com/Vetlets05">
+              <img src="https://github.com/Vetlets05.png?size=100" width="100px;" alt="Vetle Støren"/><br />
+              <sub><b>Vetle Støren</b></sub>
+            </a>
+        </td>
     </tr>
 </table>
 
