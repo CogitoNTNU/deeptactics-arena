@@ -117,7 +117,12 @@ This project would not have been possible without the hard work and dedication o
               <img src="https://github.com/hako2807.png?size=100" width="100px;" alt="NAME OF MEMBER"/><br />
               <sub><b>NAME OF MEMBER</b></sub>
             </a>
+            <a href="https://github.com/Parleenb">
+              <img src="https://github.com/Parleenb.png?size=100" width="100px;" alt="NAME OF MEMBER"/><br />
+              <sub><b>NAME OF MEMBER</b></sub>
+            </a>
         </td>
+
 
     </tr>
 </table>
