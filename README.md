@@ -111,14 +111,14 @@ This project would not have been possible without the hard work and dedication o
 
 <table align="center">
     <tr>
-        <!--
+        
         <td align="center">
-            <a href="https://github.com/NAME_OF_MEMBER">
-              <img src="https://github.com/NAME_OF_MEMBER.png?size=100" width="100px;" alt="NAME OF MEMBER"/><br />
+            <a href="https://github.com/hako2807">
+              <img src="https://github.com/hako2807.png?size=100" width="100px;" alt="NAME OF MEMBER"/><br />
               <sub><b>NAME OF MEMBER</b></sub>
             </a>
         </td>
-        -->
+
     </tr>
 </table>
 
