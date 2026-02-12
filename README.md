@@ -128,6 +128,10 @@ This project would not have been possible without the hard work and dedication o
               <img src="https://github.com/Vetlets05.png?size=100" width="100px;" alt="Vetle Støren"/><br />
               <sub><b>Vetle Støren</b></sub>
             </a>
+            <a href="https://github.com/jacobNTNU">
+              <img src="https://github.com/jacobNTNU.png?size=100" width="100px;" alt="Jacob Gullesen Hagen"/><br />
+              <sub><b>Jacob Gullesen Hagen</b></sub>
+            </a>
         </td>
     </tr>
 </table>
