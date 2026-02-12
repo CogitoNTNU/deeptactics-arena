@@ -113,11 +113,11 @@ This project would not have been possible without the hard work and dedication o
     <tr>
         <td align="center">
             <a href="https://github.com/hako2807">
-              <img src="https://github.com/hako2807.png?size=100" width="100px;" alt="NAME OF MEMBER"/><br />
+              <img src="https://github.com/hako2807.png?size=100" width="100px;" alt="Håken Støren"/><br />
               <sub><b>NAME OF MEMBER</b></sub>
             </a>
             <a href="https://github.com/Parleenb">
-              <img src="https://github.com/Parleenb.png?size=100" width="100px;" alt="NAME OF MEMBER"/><br />
+              <img src="https://github.com/Parleenb.png?size=100" width="100px;" alt="Parleen Brar"/><br />
               <sub><b>Parleen Brar/b></sub>
             </a>
             <a href="https://github.com/ludvigovrevik">
@@ -127,6 +127,12 @@ This project would not have been possible without the hard work and dedication o
             <a href="https://github.com/Vetlets05">
               <img src="https://github.com/Vetlets05.png?size=100" width="100px;" alt="Vetle Støren"/><br />
               <sub><b>Vetle Støren</b></sub>
+            </a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/jessicaliu03">
+              <img src="https://github.com/jessicaliu03.png?size=100" width="100px;" alt="Jessica Liu"/><br />
+              <sub><b>Jessica Liu</b></sub>
             </a>
         </td>
     </tr>
