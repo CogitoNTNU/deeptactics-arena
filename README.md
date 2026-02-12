@@ -16,9 +16,9 @@
 <details> 
 <summary><b>📋 Table of contents </b></summary>
 
-- [PROJECT-TEMPLATE](#PROJECT-TEMPLATE)
+- [PROJECT-TEMPLATE](#project-template)
   - [Description](#description)
-  - [🛠️ Prerequisites](#%EF%B8%8F-prerequisites)
+  - [🛠️ Prerequisites](#️-prerequisites)
   - [Getting started](#getting-started)
   - [Usage](#usage)
     - [📖 Generate Documentation Site](#-generate-documentation-site)
@@ -111,7 +111,6 @@ This project would not have been possible without the hard work and dedication o
 
 <table align="center">
     <tr>
-        
         <td align="center">
             <a href="https://github.com/hako2807">
               <img src="https://github.com/hako2807.png?size=100" width="100px;" alt="NAME OF MEMBER"/><br />
@@ -119,11 +118,17 @@ This project would not have been possible without the hard work and dedication o
             </a>
             <a href="https://github.com/Parleenb">
               <img src="https://github.com/Parleenb.png?size=100" width="100px;" alt="NAME OF MEMBER"/><br />
-              <sub><b>NAME OF MEMBER</b></sub>
+              <sub><b>Parleen Brar/b></sub>
+            </a>
+            <a href="https://github.com/ludvigovrevik">
+              <img src="https://github.com/ludvigovrevik.png?size=100" width="100px;" alt="Ludvig Øvrevik"/><br />
+              <sub><b>Ludvig Øvrevik</b></sub>
+            </a>
+            <a href="https://github.com/Vetlets05">
+              <img src="https://github.com/Vetlets05.png?size=100" width="100px;" alt="Vetle Støren"/><br />
+              <sub><b>Vetle Støren</b></sub>
             </a>
         </td>
-
-
     </tr>
 </table>
 
