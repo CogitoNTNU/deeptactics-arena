@@ -52,8 +52,8 @@ For example: OS version, programs, libraries, etc.
 1. **Clone the repository**:
 
    ```sh
-   git clone https://github.com/CogitoNTNU/PROJECT-TEMPLATE.git
-   cd PROJECT-TEMPLATE
+   git clone https://github.com/CogitoNTNU/deeptactics-arena.git
+   cd deeptactics-arena
    ```
 
 1. **Install dependencies**:
