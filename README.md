@@ -117,8 +117,8 @@ This project would not have been possible without the hard work and dedication o
               <sub><b>Håken Støren</b></sub>
             </a>
             <a href="https://github.com/Parleenb">
-              <img src="https://github.com/Parleenb.png?size=100" width="100px;" alt="NAME OF MEMBER"/><br />
-              <sub><b>Parleen Brar/b></sub>
+              <img src="https://github.com/Parleenb.png?size=100" width="100px;" alt="Parleen Brar"/><br />
+              <sub><b>Parleen Brar</b></sub>
             </a>
             <a href="https://github.com/ludvigovrevik">
               <img src="https://github.com/ludvigovrevik.png?size=100" width="100px;" alt="Ludvig Øvrevik"/><br />
