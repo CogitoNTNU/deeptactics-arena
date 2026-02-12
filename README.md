@@ -111,7 +111,6 @@ This project would not have been possible without the hard work and dedication o
 
 <table align="center">
     <tr>
-        
         <td align="center">
             <a href="https://github.com/hako2807">
               <img src="https://github.com/hako2807.png?size=100" width="100px;" alt="NAME OF MEMBER"/><br />
@@ -121,9 +120,6 @@ This project would not have been possible without the hard work and dedication o
               <img src="https://github.com/ludvigovrevik.png?size=100" width="100px;" alt="Ludvig Øvrevik"/><br />
               <sub><b>Ludvig Øvrevik</b></sub>
             </a>
-        </td>
-
-        <td align="center">
             <a href="https://github.com/Vetlets05">
               <img src="https://github.com/Vetlets05.png?size=100" width="100px;" alt="Vetle Støren"/><br />
               <sub><b>Vetle Støren</b></sub>
