@@ -3,15 +3,15 @@
 #SBATCH --job-name="deeptactics"
 #SBATCH --time=10:00:00
 #SBATCH --partition=GPUQ
-#SBATCH --mem=80GB
+#SBATCH --mem=40GB
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
-#SBATCH --constraint="(a100|h100|h200)&(gpu40g|gpu80g)"
+#SBATCH --constraint="(p100|v100|a100|h100|h200)&(gpu40g|gpu80g)"
 #SBATCH --output=slurm_outputs/output_deeptactics.txt
 #SBATCH --error=slurm_outputs/output_deeptactics.err
 
 
-WORKDIR=${SLURM_SUBMIT_DIR}
+WORKDIR=../${SLURM_SUBMIT_DIR}
 cd ${WORKDIR}
 echo "Running from this directory: $SLURM_SUBMIT_DIR"
 echo "Name of job: $SLURM_JOB_NAME"
