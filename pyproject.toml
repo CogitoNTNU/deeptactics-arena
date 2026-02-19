@@ -12,7 +12,7 @@ dependencies = [
     "pettingzoo>=1.25.0",
     "pip>=26.0.1",
     "pygame>=2.6.1",
-    "setuptools>=82.0.0",
+    "setuptools<70",
     "stable-baselines3>=2.7.1",
     "tensorboard>=2.20.0",
     "torch>=2.10.0",
