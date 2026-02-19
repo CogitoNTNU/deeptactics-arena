@@ -112,30 +112,42 @@ This project would not have been possible without the hard work and dedication o
 <table align="center">
     <tr>
         <td align="center">
-            <a href="https://github.com/hako2807">
-              <img src="https://github.com/hako2807.png?size=100" width="100px;" alt="Håken Støren"/><br />
-<<<<<<< HEAD
-              <sub><b>NAME OF MEMBER</b></sub>
+            <a href="https://github.com/sverrenystad">
+              <img src="https://github.com/sverrenystad.png?size=100" width="100px;" alt="Sverre Nystad"/><br />
+              <sub><b>Sverre Nystad</b></sub>
             </a>
-            <a href="https://github.com/Parleenb">
-              <img src="https://github.com/Parleenb.png?size=100" width="100px;" alt="Parleen Brar"/><br />
-              <sub><b>Parleen Brar/b></sub>
-=======
-              <sub><b>Håken Støren</b></sub>
+        </td>
+        <td align="center">
+            <a href="https://github.com/knolaisen">
+              <img src="https://github.com/knolaisen.png?size=100" width="100px;" alt="Kristoffer Nohr Olaisen"/><br />
+              <sub><b>Kristoffer Nohr Olaisen</b></sub>
             </a>
-            <a href="https://github.com/Parleenb">
-              <img src="https://github.com/Parleenb.png?size=100" width="100px;" alt="Parleen Brar"/><br />
-              <sub><b>Parleen Brar</b></sub>
->>>>>>> bc2172072074530fd0ea5365d6fe57a8fcea3326
-            </a>
+        </td>
+        <td align="center">
             <a href="https://github.com/ludvigovrevik">
               <img src="https://github.com/ludvigovrevik.png?size=100" width="100px;" alt="Ludvig Øvrevik"/><br />
               <sub><b>Ludvig Øvrevik</b></sub>
             </a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/hako2807">
+              <img src="https://github.com/hako2807.png?size=100" width="100px;" alt="Håken Støren"/><br />
+              <sub><b>Håken Støren</b></sub>
+            </a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/Parleenb">
+              <img src="https://github.com/Parleenb.png?size=100" width="100px;" alt="Parleen Brar"/><br />
+              <sub><b>Parleen Brar</b></sub>
+            </a>
+        </td>
+        <td align="center">
             <a href="https://github.com/Vetlets05">
               <img src="https://github.com/Vetlets05.png?size=100" width="100px;" alt="Vetle Støren"/><br />
               <sub><b>Vetle Støren</b></sub>
             </a>
+        </td>
+        <td align="center">
             <a href="https://github.com/jacobNTNU">
               <img src="https://github.com/jacobNTNU.png?size=100" width="100px;" alt="Jacob Gullesen Hagen"/><br />
               <sub><b>Jacob Gullesen Hagen</b></sub>
@@ -149,8 +161,6 @@ This project would not have been possible without the hard work and dedication o
         </td>
     </tr>
 </table>
-
-![Group picture](docs/img/team.png)
 
 ### License
 
