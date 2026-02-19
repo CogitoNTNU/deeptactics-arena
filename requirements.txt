@@ -64,12 +64,28 @@ coverage==7.10.3 \
     --hash=sha256:f35580f19f297455f44afcd773c9c7a058e52eb6eb170aa31222e635f2e38b87 \
     --hash=sha256:f5983c132a62d93d71c9ef896a0b9bf6e6828d8d2ea32611f58684fba60bba35 \
     --hash=sha256:fe72cbdd12d9e0f4aca873fa6d755e103888a7f9085e4a62d282d9d5b9f7928c
-cuda-bindings==12.9.4 ; platform_machine == 'x86_64' and sys_platform == 'linux' \
-    --hash=sha256:32bdc5a76906be4c61eb98f546a6786c5773a881f3b166486449b5d141e4a39f \
-    --hash=sha256:56e0043c457a99ac473ddc926fe0dc4046694d99caef633e92601ab52cbe17eb \
-    --hash=sha256:8b72ee72a9cc1b531db31eebaaee5c69a8ec3500e32c6933f2d3b15297b53686 \
-    --hash=sha256:d80bffc357df9988dca279734bc9674c3934a654cab10cadeed27ce17d8635ee \
-    --hash=sha256:fda147a344e8eaeca0c6ff113d2851ffca8f7dfc0a6c932374ee5c47caa649c8
+cuda-bindings==12.9.5 ; platform_machine == 'x86_64' and sys_platform == 'linux' \
+    --hash=sha256:14dcc3a4b7bc50a7bec0e98a815b7cc36a0cfeafa20152e484c3a05068209da5 \
+    --hash=sha256:3b3a89fccd6cc1ec535a940b43243761537ae573d977c3cd18e38f841e1f8a86 \
+    --hash=sha256:40dc79c8cbf663e24d2607b2a979787e0d6840b624a4da48cd5303acb8482ad2 \
+    --hash=sha256:42bb96bcf5bcf235341246f88c7e854623aceb68ba35eef6fcb1f665d54bfe81 \
+    --hash=sha256:5218388042d3415fba74030600fa25d59e3ec4183c344f227d43df52ca53f408 \
+    --hash=sha256:5b9401e3bcd5d3a3c90cbb759e2cf6b8a446789b8dd6e452de9530e50b93683f \
+    --hash=sha256:5f5ee48922d723c626549b5644f69adcbf7537499a42963cc39d328319ff44ed \
+    --hash=sha256:5faab6be8fc097076eabe591e084c7c743d6d4222ef15f42008122cdd5ca31e1 \
+    --hash=sha256:6427fd9fef4c8cc171fbf9eb74763faeddc1fa3899882c269ff7f9b12e03b965 \
+    --hash=sha256:77964179bc62504dc6bdba745bd594652233ec7796af8adce10edc0dfaf1ed95 \
+    --hash=sha256:819f38fe6f3f8ea28f772e61c2583dd10152ee81051a970a291b7f916973729e \
+    --hash=sha256:92f21accf6fcdea7998b2ee1bbed71e2a156737624c46dc9bc3b51a1c55bda88 \
+    --hash=sha256:9a82dd5c30d9ef0956ddc9ae84e27ea027576633161de8646b00e7189d4f0a39 \
+    --hash=sha256:b2eb7041101f6386ac49f2bc0b4b194ac705d02c1b75a42a72e77f1be8d0bb6a \
+    --hash=sha256:c3fb96c3d99f58ee5b3072bf1b40c215f4207481cc8b5f15b1a6c628eeb40cae \
+    --hash=sha256:da37458f8c5074d59040deddbd005460c0cf70d1ef90dd7d2c816e4686038e87 \
+    --hash=sha256:dbe330129380cc01a1a8f23894ae39c52e9fedc4b7db8ed69ac5f8ac48d55084 \
+    --hash=sha256:e06d272b25149e1a83b446ff3dbefcf6f82f66865c49e8d9db75683bbcff0b5f \
+    --hash=sha256:ec376bfd8b07931f72bebed5e558c9bdae3a85473a6a1d5783ef3483a22fe86c \
+    --hash=sha256:ecea500213a917685fcf64cee8b96f02d35258920fe5f4deec6cbfaf94ff2198 \
+    --hash=sha256:ee42798f639920d30292a1649b24388526067463f73a8469feeba1570121ce2d
 cuda-pathfinder==1.3.4 ; platform_machine == 'x86_64' and sys_platform == 'linux' \
     --hash=sha256:fb983f6e0d43af27ef486e14d5989b5f904ef45cedf40538bfdcbffa6bb01fb2
 distlib==0.4.0 \
