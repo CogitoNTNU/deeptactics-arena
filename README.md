@@ -1,12 +1,10 @@
-<!-- TODO: CHANGE ALL INSTANCES OF "PROJECT-TEMPLATE" IN ENTIRE PROJECT TO YOUR PROJECT TITLE-->
-
-# PROJECT-TEMPLATE
+# DeepTactics Arena
 
 <div align="center">
 
-![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/CogitoNTNU/PROJECT-TEMPLATE/ci.yml)
-![GitHub top language](https://img.shields.io/github/languages/top/CogitoNTNU/PROJECT-TEMPLATE)
-![GitHub language count](https://img.shields.io/github/languages/count/CogitoNTNU/PROJECT-TEMPLATE)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/CogitoNTNU/deeptactics-arena/ci.yml)
+![GitHub top language](https://img.shields.io/github/languages/top/CogitoNTNU/deeptactics-arena)
+![GitHub language count](https://img.shields.io/github/languages/count/CogitoNTNU/deeptactics-arena)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Project Version](https://img.shields.io/badge/version-0.0.1-blue)](https://img.shields.io/badge/version-0.0.1-blue)
 
@@ -16,7 +14,7 @@
 <details> 
 <summary><b>📋 Table of contents </b></summary>
 
-- [PROJECT-TEMPLATE](#project-template)
+- [DeepTactics Arena](#deeptactics-arena)
   - [Description](#description)
   - [🛠️ Prerequisites](#️-prerequisites)
   - [Getting started](#getting-started)
@@ -46,8 +44,6 @@ For example: OS version, programs, libraries, etc.
 
 ## Getting started
 
-<!-- TODO: In this Section you describe how to install this project in its intended environment.(i.e. how to get it to run)  
--->
 
 1. **Clone the repository**:
 
@@ -56,22 +52,21 @@ For example: OS version, programs, libraries, etc.
    cd deeptactics-arena
    ```
 
-1. **Install dependencies**:
-
+2. **Install dependencies**:
+   
    ```sh
    uv sync
    ```
 
-<!--
-1. **Configure environment variables**:
+3. **Configure environment variables**:
+    
     This project uses environment variables for configuration. Copy the example environment file to create your own:
     ```sh
     cp .env.example .env
     ```
     Then edit the `.env` file to include your specific configuration settings.
--->
 
-1. **Set up pre commit** (only for development):
+4. **Set up pre commit** (only for development):
    ```sh
    uv run pre-commit install
    ```
@@ -95,7 +90,7 @@ uv run mkdocs build
 uv run mkdocs serve
 ```
 
-This will build the documentation and start a local server at [http://127.0.0.1:8000/](http://127.0.0.1:8000/) where you can browse the docs and API reference. Get the documentation according to the lastes commit on main by viewing the `gh-pages` branch on GitHub: [https://cogitontnu.github.io/PROJECT-TEMPLATE/](https://cogitontnu.github.io/PROJECT-TEMPLATE/).
+This will build the documentation and start a local server at [http://127.0.0.1:8000/](http://127.0.0.1:8000/) where you can browse the docs and API reference. Get the documentation according to the lastes commit on main by viewing the `gh-pages` branch on GitHub: [https://cogitontnu.github.io/deeptactics-arena/](https://cogitontnu.github.io/deeptactics-arena/).
 
 ## Testing
 
