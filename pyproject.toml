@@ -7,8 +7,12 @@ requires-python = ">=3.12"
 license-files = ["LICENSE"]
 dependencies = [
     "chess>=1.11.2",
+    "opencv-python>=4.13.0.92",
     "pettingzoo>=1.25.0",
     "pygame>=2.6.1",
+    "setuptools>=82.0.0",
+    "stable-baselines3>=2.7.1",
+    "tensorboard>=2.20.0",
     "torch>=2.10.0",
 ]
 
