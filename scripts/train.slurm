@@ -29,6 +29,6 @@ uv sync
 # Enable W&B logging for Ultralytics
 
 # Run the Python script
-uv run python test.py
+uv run python scripts/test.py
 
 echo "Job finished"
