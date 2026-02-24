@@ -22,13 +22,13 @@ class Network(nn.Module):
         x = F.relu(x)
         x = self.output_layer(x) # output er Q-verdier, hver verdi er fremtidig expected reward
                                     # gitt at du i fremtiden tar den beste action at all steps
-        return np.argmax(x) # 0 eller 1
+        return x # 0 eller 1
     
 class DQN():
     def __init__(self):
         self.policy_network = Network()
         self.target_network = Network()
-        self.target_network.load_state_dict(self.policy_network)
+        self.target_network.load_state_dict(self.policy_network.state_dict())
         self.eps = 1.0
         self.gamma = 0.99
         self.replay_buffer = deque(maxlen=10000)
@@ -38,7 +38,7 @@ class DQN():
         if random.random() < self.eps:
             action = random.randint(0, 1)
         else:
-            action = self.policy_network.forward(x)
+            action = torch.argmax(self.policy_network.forward(x)).item()
         self.update_eps()
         return action
     
@@ -56,24 +56,24 @@ class DQN():
         target_predictions = []
         for state, next_state, reward, done, action in samples:
             if done:
-                target_predictions.append(reward)
+                target_predictions.append(torch.tensor(reward))
             else:
                 with torch.no_grad():
-                    next_q_values = self.target_network(next_state) # [22, 50]
-                    q_value = max(next_q_values)
+                    next_q_values = self.target_network(torch.tensor(next_state)) # [22, 50]
+                    q_value = torch.max(next_q_values)
                     target_predictions.append(reward + 0.99 * q_value) # [15]
 
         policy_predictions = []
         for state, next_state, reward, done, action in samples:
-            q_values = self.policy_network(state)
-            policy_predictions.append(q_values[action]) # [15]
+            q_values = self.policy_network(torch.tensor(state)) # tensor[x, y]
+            policy_predictions.append(q_values[int(action)])
             
         loss_func = nn.MSELoss()
-        loss = loss_func(policy_predictions, target_predictions)
+        loss = loss_func(torch.stack(policy_predictions), torch.stack(target_predictions))
             
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
     
     def update_target(self):
-        self.target_network.load_state_dict(self.policy_network)
+        self.target_network.load_state_dict(self.policy_network.state_dict())
