@@ -70,11 +70,22 @@ class MCTS:
         node.value += result
         self.backpropagate(node.parent, result)
 
-    def run_simulation(self, state, num_simulations=1_000):
+    def run_simulations(self, state, num_simulations=1_000):
         """
         Simulate a game to its conclusion.
         Random moves are selected all the way.
         """
+        
+        for n in range(num_simulations):
+            selected_node = self.select(state)
+            if selected_node.node_visited == 0:
+                self.rollout(selected_node, game)
+                self.backpropagate(selected_node, selected_node.value)
+            else:
+                self.expand(selected_node)
+                child_node = selected_node.children[0]
+                self.rollout(child_node)
+                self.backpropagate(child_node, child_node.value)
 
 
 if __name__ == "__main__":
@@ -83,7 +94,7 @@ if __name__ == "__main__":
     state = game.new_initial_state()
 
     while not state.is_terminal():
-        action = mcts.run_simulation(state, 1_000)
+        action = mcts.run_simulations(state, 1_000)
         print("best action\t", action, "\n")
         state.apply_action(action)
         print(state)
