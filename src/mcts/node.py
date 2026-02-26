@@ -7,5 +7,5 @@
         self.action = action
         self.state = state
 
-    def add_children(self, children: list["Node"]):
-        self.children.expand(children)
+    def add_child(self, child: "Node"):
+        self.children.append(child)
