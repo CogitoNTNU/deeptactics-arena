@@ -126,8 +126,8 @@ This project would not have been possible without the hard work and dedication o
         </td>
         <td align="center">
             <a href="https://github.com/hako2807">
-              <img src="https://github.com/hako2807.png?size=100" width="100px;" alt="Håken Støren"/><br />
-              <sub><b>Håken Støren</b></sub>
+              <img src="https://github.com/hako2807.png?size=100" width="100px;" alt="Håkon Støren"/><br />
+              <sub><b>Håkon Støren</b></sub>
             </a>
         </td>
         <td align="center">
