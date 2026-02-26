@@ -32,7 +32,7 @@ class MCTS:
         if len(node.children) == 0:
             return node
 
-        return select(max(node.children, key=lambda child: self.ucb(child)))
+        return self.select(max(node.children, key=lambda child: self.ucb(child)))
 
     def expand(self, node: Node):
         """
