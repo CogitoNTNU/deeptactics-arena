@@ -44,7 +44,7 @@ class MCTS:
         """
         legal_actions = node.state.legal_actions()
         for action in legal_actions:
-            next_state, _ , _ , _= node.state.step(action)
+            next_state, _ , _ , _, _ = node.state.step(action)
             child_node = Node(node, action, next_state)
             node.add_child(child_node)
 
