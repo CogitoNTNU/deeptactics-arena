@@ -17,6 +17,7 @@ dependencies = [
     "setuptools<70",
     "stable-baselines3>=2.7.1",
     "tensorboard>=2.20.0",
+    "tensordict>=0.11.0",
     "torch>=2.10.0",
     "torchrl>=0.11.1",
     "wandb>=0.25.0",
