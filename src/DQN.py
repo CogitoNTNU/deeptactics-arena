@@ -32,7 +32,7 @@ class DQN():
         self.eps = 1.0
         self.gamma = 0.99
         self.replay_buffer = deque(maxlen=10000)
-        self.optimizer = torch.optim.AdamW(self.policy_network.parameters(), lr=0.01)
+        self.optimizer = torch.optim.AdamW(self.policy_network.parameters(), lr=0.001)
         
     def get_action(self, x):
         if random.random() < self.eps:
@@ -43,7 +43,7 @@ class DQN():
         return action
     
     def update_eps(self):
-        self.eps = max(0.1, self.eps * 0.99)
+        self.eps = max(0.1, self.eps * 0.999)
         
     def get_experience(self, buffer_size = 32):
         return random.sample(self.replay_buffer, buffer_size)
