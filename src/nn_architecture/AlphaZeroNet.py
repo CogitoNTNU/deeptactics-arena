@@ -55,14 +55,12 @@ class MLPEncoder(nn.Module):    #f : obs -> input
         self.hidden_layers = nn.ModuleList([nn.Linear(128, 128) for i in range(num_layers)])
         self.output_layer = nn.Linear(128, output_shape)
 
-
-
     
     def forward(self, observation : torch.Tensor) -> torch.Tensor:
         x = self.input_layer(observation)
         for i, layer in enumerate(self.hidden_layers):
             x = layer(x)
-            #x = nn.ReLU(x)
+            x = nn.ReLU()(x)
         x = self.output_layer(x)
 
         return x
