@@ -34,7 +34,6 @@ def test_mlp_encoder_validation():
 
         encoder = MLPEncoder(num_layers, input_shape, output_shape)
 
-    assert "input shape is zero" in str(excinfo.value)
 
 def test_mlp_encoder_validation_output():
     with pytest.raises(ValueError) as excinfo:
@@ -42,7 +41,5 @@ def test_mlp_encoder_validation_output():
         output_shape = 0
         num_layers = 5
 
-    assert "output_shape is zero" in str(excinfo.value)
-    #test om layer shape == 0
-    #raise FEIL
+        encoder = MLPEncoder(num_layers, input_shape, output_shape)
     

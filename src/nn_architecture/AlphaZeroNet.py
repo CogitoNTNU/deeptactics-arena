@@ -42,13 +42,20 @@ class CNNEncoder(nn.Module):
         
 
 
-class MLPEncoder(nn.Module):    # f : obs -> input
+class MLPEncoder(nn.Module):    #f : obs -> input
     def __init__(self, num_layers : int, input_shape: int, output_shape : int):
         super().__init__()
+
+        if input_shape <= 0:
+            raise ValueError
+        if output_shape <= 0:
+            raise ValueError
 
         self.input_layer = nn.Linear(input_shape, out_features=128)
         self.hidden_layers = nn.ModuleList([nn.Linear(128, 128) for i in range(num_layers)])
         self.output_layer = nn.Linear(128, output_shape)
+
+
 
     
     def forward(self, observation : torch.Tensor) -> torch.Tensor:
