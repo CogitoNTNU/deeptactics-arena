@@ -19,12 +19,7 @@ class AlphaZeroNet(nn.Module):
         # stem
 
         # output head
-
-
-
     def forward(self, obs: torch.Tensor):
-
-
         return self.model.forward()
 
     def backward(self):
@@ -32,8 +27,16 @@ class AlphaZeroNet(nn.Module):
 
 
 class CNNEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, num_layers : int, input_shape: int, output_shape : int):     #TODO Endre til tuple input osv
+
         super().__init__()
+
+        if input_shape <=0:
+            raise ValueError
+
+        if output_shape <=0:
+            raise ValueError
+        
         self.module_list = nn.ModuleList([nn.Conv2d()])
     
     def forward(self):
