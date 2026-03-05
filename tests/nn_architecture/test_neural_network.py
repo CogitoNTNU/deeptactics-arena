@@ -1,21 +1,28 @@
 import torch
 import pytest
 
+from src.nn_architecture.network_config import NetworkConfig
+
 from src.nn_architecture.AlphaZeroNet import MLPEncoder
 from src.nn_architecture.AlphaZeroNet import CNNEncoder
+from src.nn_architecture.AlphaZeroNet import AlphaZeroNet
+
+from src.nn_architecture.AlphaZeroNet import ResidualBlock
+
+from src.nn_architecture.AlphaZeroNet import NetworkHead
 
 
 
 @pytest.mark.parametrize(
-        "input_shape, output_shape, num_layers",
+        "num_layers, input_shape, output_shape",
         [
-            (4, 2, 10),
-            (8, 2, 10),
-            (8, 2, 0),
-            (4,2000,10),
+            (10, 4, 2),
+            (10, 8, 2),
+            (0, 8, 2),
+            (10, 4, 2000),
         ]
 )
-def test_mlp_encoder(input_shape, output_shape, num_layers):
+def test_mlp_encoder(num_layers, input_shape, output_shape):
     
     encoder = MLPEncoder(num_layers, input_shape, output_shape)
 
@@ -45,15 +52,15 @@ def test_mlp_encoder_validation_output():
 
 
 @pytest.mark.parametrize(
-        "input_shape, output_shape, num_layers",
+        "num_layers, input_shape, output_shape",
         [
-            (4, 2, 10),
-            (8, 2, 10),
-            (8, 2, 0),
-            (4,2000,10),
+            (10, (4, 4), 2),
+            (10, 8, 2),
+            (0, (8,8), 2),
+            (10, (1000,4),2000),
         ]
 )
-def test_cnn_encoder(input_shape, output_shape, num_layers):
+def test_cnn_encoder(num_layers, input_shape, output_shape):
     
     encoder = CNNEncoder(num_layers, input_shape, output_shape)
 
@@ -80,4 +87,61 @@ def test_cnn_encoder_validation_output():
         num_layers = 5
 
         encoder = CNNEncoder(num_layers, input_shape, output_shape)   
+
+@pytest.mark.parametrize(
+        "config",
+        [
+            (NetworkConfig(encoder_type="cnn",input_shape=8,hidden_shape=20,output_shape=30)),
+            (NetworkConfig(encoder_type="mlp",input_shape=8,hidden_shape=20,output_shape=30))
+        ]
+)
+def test_alpha_zero_net(config):
+
+    model = AlphaZeroNet(config)
+
+    x = torch.randn(config.input_shape.shape)
+
+    y = model.forward()
+
+    assert y.size(dim=0) == config.output_shape, f"Expected output {config.output_shape}, got {y.shape}"
+
+
+def test_alpha_zero_validate_encoder():
+    with pytest.raises(ValueError) as excinfo:
+        config = NetworkConfig(encoder_type="NOT_A_VALID_ENCODER", input_shape=10, hidden_shape=4, output_shape=10)
+
+        model = AlphaZeroNet(config)
     
+
+def test_residual_block():
+    input_size = 10
+    output_size = 20
+    hidden_dim = 128
+
+    block = ResidualBlock(input_size, output_size, hidden_dim)
+
+    x = torch.randn(input_size)
+
+    y = block.forward(x)
+    
+    assert y.size(dim=0) == output_size, f"Expected output {output_size}, got {y.shape}"
+
+
+def test_network_head():
+    batch = 2
+    legal_actions = 2
+    hidden_dim = 128
+    
+
+    network_head = NetworkHead(batch, legal_actions, hidden_dim)
+
+    x = torch.randn((batch,legal_actions))
+
+    policy, value = network_head.forward(x)
+
+    possible_values = lambda x : -1 <= x and x <=1
+    assert possible_values(value), f"Expected value in -1 to 1, got {value}"
+    assert value.size() == (batch, 1), f"Expected value size {(batch, 1)}, got {value.size()}"
+    assert policy.size()==(batch,legal_actions), f"Expected policy size {(batch,legal_actions)}, got {policy.size()}"
+
+
