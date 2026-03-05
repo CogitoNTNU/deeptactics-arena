@@ -1,5 +1,5 @@
 import torch
-from torchrl import ReplayBuffer
+from torchrl.data import ReplayBuffer
 import torch.nn as nn
 from tensordict import TensorDict
 from typing import Callable
@@ -45,7 +45,9 @@ def train_per_batch(tranjectories: TensorDict, model: nn.Module, optimizer: torc
         self.replay_buffer.add(td)
     """
 
-def loss_function(pred_policies: torch.Tensor, pred_values: torch.Tensor, policies: torch.Tensor, values: torch.Tensor) -> float:
-    """
-    Use mean square error and cross enttropy loss
-    """
+
+def loss_with_torch(pred_policies: torch.Tensor, pred_values: torch.Tensor, policies: torch.Tensor, values: torch.Tensor) ->float:
+    mse = nn.functional.mse_loss(pred_values, values)
+
+    ce = nn.functional.cross_entropy(pred_policies, policies)
+    return ce + mse
