@@ -1,0 +1,12 @@
+network:
+  encoder_type: cnn
+  input_shape: [6,7,2]
+  hidden_shape: 128
+  legal_actions: 7
+  num_layers: 4
+  stem:
+    num_residual_blocks: 1
+    block_size: 128
+  head:
+    hidden_blocks: 4
+env_name: connect_four

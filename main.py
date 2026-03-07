@@ -4,6 +4,7 @@ from torch import nn
 from src.configuration import Configuration
 from src.training.trainer import train
 from torch.optim import AdamW
+from src.nn_architecture.network_config import load_config
 
 
 def generate_training_data(replay_buffer: ReplayBuffer, model=None) -> ReplayBuffer: #TODO implement later with MCTS
@@ -17,7 +18,8 @@ def training_loop(num_episodes: int):
         storage = LazyMemmapStorage(size=1_000_000),
     )
     model: nn.Module = None
-    config = Configuration()
+    config = load_config("config.yaml")
+    
 
     optimizer = AdamW(model.parameters(), lr=config.learning_rate)
 
@@ -28,4 +30,4 @@ def training_loop(num_episodes: int):
         if len(replay_buffer) <= config.min_replay_size:
             train(replay_buffer, model, optimizer, config.epochs)
             
-    #TODO implement training loop here
+    #TODO implement training loop herefrom src.nn_architecture.network_config import load_config, Configuration
