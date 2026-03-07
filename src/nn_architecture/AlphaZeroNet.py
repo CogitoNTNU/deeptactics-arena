@@ -15,6 +15,8 @@ class AlphaZeroNet(nn.Module):
                 self.model = CNNEncoder(config.input_shape)
             case "mlp":
                 self.model = MLPEncoder(config.num_layers, config.input_shape, config.stem.block_size)
+            case _:
+                raise ValueError(f"Invalid encoder type: {encoder_type}")
         
         # stem
         self.common_blocks = nn.ModuleList([ResidualBlock(config.stem.block_size) for i in range(config.stem.num_residual_blocks)])
