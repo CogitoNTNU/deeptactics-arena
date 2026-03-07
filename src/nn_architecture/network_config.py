@@ -1,5 +1,10 @@
+import os
+from pathlib import Path
+
 from pydantic import BaseModel
-from pydantic_yaml import parse_yaml_file_as, to_yaml_file
+import yaml
+
+CONFIG_PATH="./configs"
 
 class StemConfig(BaseModel):
     num_residual_blocks: int
@@ -11,21 +16,20 @@ class HeadConfig(BaseModel):
 
 class NetworkConfig(BaseModel):
     encoder_type: str
-    input_shape: int | tuple[int]
+    input_shape: int | list[int]
     hidden_shape: int
     legal_actions: int
     num_layers: int
     stem: StemConfig
     head: HeadConfig
 
+class Configuration(BaseModel):
+    network: NetworkConfig
+    env_name: str
 
+def load_config(path:str | Path)->Configuration:
+    path = os.path.join(CONFIG_PATH, path)
+    with open(path) as file:
+        raw_config = yaml.safe_load(file)
+    return Configuration(**raw_config)
 
-"""
-a = NetworkConfig(layers=1)
-
-to_yaml_file("output/config.yml",a)
-
-c = parse_yaml_file_as(NetworkConfig, "output/config.yml")
-
-print(c)
-"""
