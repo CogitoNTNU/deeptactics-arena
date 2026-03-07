@@ -14,18 +14,19 @@ class AlphaZeroNet(nn.Module):
             case "cnn":
                 self.model = CNNEncoder(config.input_shape)
             case "mlp":
-                self.model = MLPEncoder(config.num_layers, config.input_shape, config.output_shape)
+                self.model = MLPEncoder(config.num_layers, config.input_shape, config.stem.block_size)
         
         # stem
-        self.common_block = nn.ModuleList([ResidualBlock(config.stem.hidden_dim, config.stem.hidden_dim) for i in range(config.stem.num_residual_blocks)])
+        self.common_blocks = nn.ModuleList([ResidualBlock(config.stem.block_size) for i in range(config.stem.num_residual_blocks)])
         
         # output head
-        self.head = NetworkHead(config.legal_actions, config.stem.hidden_dim, config.head.hidden_blocks)
+        self.head = NetworkHead(config.legal_actions, config.stem.block_size, config.head.hidden_blocks)
         
 
     def forward(self, obs: torch.Tensor):
         x = self.model.forward(obs)
-        x = self.common_block.forward(x)
+        for i, block in enumerate(self.common_blocks):
+            x = block(x)
         
         # pred of values and policies
         policies, values = self.head.forward(x)
@@ -74,20 +75,21 @@ class MLPEncoder(nn.Module):    #f : obs -> input
 
 
 class ResidualBlock(nn.Module):
-    def __init__(self, input_size: int, output_size: int, hidden_dim: int=128):
+    def __init__(self, block_size: int, hidden_dim: int=128):
         super().__init__()
 
-        self.layer1 = nn.Linear(input_size, hidden_dim)
-        self.layer2 = nn.Linear(hidden_dim, output_size)
+        self.layer1 = nn.Linear(block_size, hidden_dim)
+        self.layer2 = nn.Linear(hidden_dim, block_size)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         activation = self.layer1(x)
-        activation = nn.LeakyReLU(activation)
-        activation = self.layer2(x)
-        activation = nn.LeakyReLU(activation)
+        m = nn.LeakyReLU()
+        activation = m(activation)
+        activation = self.layer2(activation)
+        activation = m(activation)
         
         activation += x
-        activation = nn.LeakyReLU(activation)
+        activation = m(activation)
         
         return activation
     
@@ -95,7 +97,7 @@ class ResidualBlock(nn.Module):
 class NetworkHead(nn.Module):
     def __init__(self, legal_actions, input_shape, num_hidden_blocks):
         super().__init__()
-        self.common_block = nn.ModuleList([ResidualBlock(input_shape, input_shape) for i in range(num_hidden_blocks)])
+        self.common_block = nn.ModuleList([ResidualBlock(input_shape) for i in range(num_hidden_blocks)])
 
         self.value_head = nn.Linear(input_shape,1)
         self.policy_head = nn.Linear(input_shape, legal_actions)
@@ -103,11 +105,15 @@ class NetworkHead(nn.Module):
 
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         
+        tanh = nn.Tanh()
+
         value = self.value_head(x)
-        value = nn.Tanh(value)
+        value = tanh(value)
         
+        softmax = nn.Softmax()
+
         policy_logits = self.policy_head(x)
-        policy_logits = nn.Softmax(policy_logits)
+        policy_logits = softmax(policy_logits)
 
         # [B, A], [B, 1]
         return policy_logits, value

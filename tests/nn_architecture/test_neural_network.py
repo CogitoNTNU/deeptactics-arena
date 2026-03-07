@@ -96,7 +96,7 @@ def test_cnn_encoder_validation_output():
         "config",
         [
             #(NetworkConfig(encoder_type="cnn",input_shape=8,hidden_shape=20,output_shape=30,stem=StemConfig(num_residual_blocks=10), head=HeadConfig(hidden_blocks=5))),
-            (NetworkConfig(encoder_type="mlp",input_shape=8,hidden_shape=20,output_shape=30,legal_actions=5,num_layers = 20, stem=StemConfig(num_residual_blocks=10, hidden_dim=5), head=HeadConfig(hidden_blocks=5)))
+            (NetworkConfig(encoder_type="mlp",input_shape=8,hidden_shape=20,legal_actions=5,num_layers = 20, stem=StemConfig(num_residual_blocks=10, block_size=5), head=HeadConfig(hidden_blocks=5)))
         ]
 )
 def test_alpha_zero_net(config):
@@ -105,9 +105,10 @@ def test_alpha_zero_net(config):
 
     x = torch.randn(config.input_shape)
 
-    y = model.forward(x)
+    policies, value = model.forward(x)
 
-    assert y.size(dim=0) == config.output_shape, f"Expected output {config.output_shape}, got {y.shape}"
+    assert policies.size(dim=0) == config.legal_actions, f"Expected output {config.legal_actions}, got {policies.shape}"
+    assert value.size(dim=0) == 1, f"Expected output {1}, got {policies.shape}"
 
 
 def test_alpha_zero_validate_encoder():
@@ -118,17 +119,16 @@ def test_alpha_zero_validate_encoder():
     
 
 def test_residual_block():
-    input_size = 10
-    output_size = 20
+    block_size = 10
     hidden_dim = 128
 
-    block = ResidualBlock(input_size, output_size, hidden_dim)
+    block = ResidualBlock(block_size, hidden_dim)
 
-    x = torch.randn(input_size)
+    x = torch.randn(block_size)
 
     y = block.forward(x)
     
-    assert y.size(dim=0) == output_size, f"Expected output {output_size}, got {y.shape}"
+    assert y.size(dim=0) == block_size, f"Expected output {block_size}, got {y.shape}"
 
 
 def test_network_head():
@@ -140,12 +140,13 @@ def test_network_head():
 
     network_head = NetworkHead(legal_actions, input_shape, num_hidden_blocks)
 
-    x = torch.randn((batch,legal_actions))
+    x = torch.randn(batch, input_shape)
 
     policy, value = network_head.forward(x)
 
-    possible_values = lambda x : -1 <= x and x <=1
-    assert possible_values(value), f"Expected value in -1 to 1, got {value}"
+    possible_values = lambda x : -1 <= x and x <= 1
+
+    assert all([possible_values(value[i]) for i in range(len(value))]), f"Expected value in -1 to 1, got {value}"
     assert value.size() == (batch, 1), f"Expected value size {(batch, 1)}, got {value.size()}"
     assert policy.size()==(batch,legal_actions), f"Expected policy size {(batch,legal_actions)}, got {policy.size()}"
 
