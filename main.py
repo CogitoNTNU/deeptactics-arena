@@ -7,22 +7,33 @@ from src.configuration import Configuration
 from src.training.trainer import train
 from src.configuration import load_config
 from src.nn_architecture.AlphaZeroNet import AlphaZeroNet
+from pettingzoo.classic import tictactoe_v3
 from tensordict import TensorDict
 import torch
-
+import gymnasium as gym
 import wandb 
 
 
 def generate_training_data(replay_buffer: ReplayBuffer, config: Configuration, model=None) -> ReplayBuffer: #TODO implement later with MCTS
+    env = tictactoe_v3.env(render_mode="ansi")
+    env.reset()
+    observation, reward, terminated, truncated, info = env.last()
+    montecarlo = MCTS(observation)
+
     for i in range(500):
+        policy_values = MCTS.run_simulations(1000)
+        action = torch.multinomial(policy_values, num_samples=1).item()
+        observation, reward, terminated, turnc
+        
+        
         td = TensorDict(
-            {"observation": torch.randn(config.network.input_shape),
+            {"observation": observation,
             "value": torch.zeros(1),
             "policies": torch.ones(config.network.legal_actions)
             }, 
             batch_size = [] 
         )
-        replay_buffer.add(td)
+    replay_buffer.add(td)
 
     return replay_buffer
 
