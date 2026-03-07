@@ -7,20 +7,20 @@ from src.nn_architecture.network_config import NetworkConfig
 
 class AlphaZeroNet(nn.Module):
     def __init__(self, config: NetworkConfig):
-        super().__init()
+        super().__init__()
         
         encoder_type = config.encoder_type
         match encoder_type:
             case "cnn":
                 self.model = CNNEncoder(config.input_shape)
             case "mlp":
-                pass
+                self.model = MLPEncoder(config.num_layers, config.input_shape, config.output_shape)
         
         # stem
-        self.common_block = nn.ModuleList([ResidualBlock(config.stem.hidden_dim, config.stem.hidden_dim) for i in config.stem.num_residual_blocks])
+        self.common_block = nn.ModuleList([ResidualBlock(config.stem.hidden_dim, config.stem.hidden_dim) for i in range(config.stem.num_residual_blocks)])
         
         # output head
-        self.head = NetworkHead(config.legal_actions, config.net.hidden_dim, config.head.hidden_blocks)
+        self.head = NetworkHead(config.legal_actions, config.stem.hidden_dim, config.head.hidden_blocks)
         
 
     def forward(self, obs: torch.Tensor):
@@ -36,17 +36,11 @@ class AlphaZeroNet(nn.Module):
 
 
 class CNNEncoder(nn.Module):
-    def __init__(self, num_layers: int, input_shape: int, output_shape: int):     #TODO Endre til tuple input osv
+    def __init__(self, num_layers: int, input_shape: tuple[int], output_shape: int):     #TODO Endre til tuple input osv
 
         super().__init__()
-
-        if input_shape <=0:
-            raise ValueError
-
-        if output_shape <=0:
-            raise ValueError
         
-        self.module_list = nn.ModuleList([nn.Conv2d()])
+        #self.module_list = nn.ModuleList([nn.Conv2d()])
     
     def forward(self):
         pass
@@ -98,9 +92,10 @@ class ResidualBlock(nn.Module):
         return activation
     
 
-class NetworkHead(nn.modules):
+class NetworkHead(nn.Module):
     def __init__(self, legal_actions, input_shape, num_hidden_blocks):
-        self.common_block = nn.ModuleList([ResidualBlock(input_shape, input_shape) for i in num_hidden_blocks])
+        super().__init__()
+        self.common_block = nn.ModuleList([ResidualBlock(input_shape, input_shape) for i in range(num_hidden_blocks)])
 
         self.value_head = nn.Linear(input_shape,1)
         self.policy_head = nn.Linear(input_shape, legal_actions)

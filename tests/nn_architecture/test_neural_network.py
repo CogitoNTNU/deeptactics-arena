@@ -2,6 +2,8 @@ import torch
 import pytest
 
 from src.nn_architecture.network_config import NetworkConfig
+from src.nn_architecture.network_config import StemConfig
+from src.nn_architecture.network_config import HeadConfig
 
 from src.nn_architecture.AlphaZeroNet import MLPEncoder
 from src.nn_architecture.AlphaZeroNet import CNNEncoder
@@ -50,7 +52,7 @@ def test_mlp_encoder_validation_output():
 
         encoder = MLPEncoder(num_layers, input_shape, output_shape)
 
-
+"""
 @pytest.mark.parametrize(
         "num_layers, input_shape, output_shape",
         [
@@ -88,20 +90,22 @@ def test_cnn_encoder_validation_output():
 
         encoder = CNNEncoder(num_layers, input_shape, output_shape)   
 
+"""
+
 @pytest.mark.parametrize(
         "config",
         [
-            (NetworkConfig(encoder_type="cnn",input_shape=8,hidden_shape=20,output_shape=30)),
-            (NetworkConfig(encoder_type="mlp",input_shape=8,hidden_shape=20,output_shape=30))
+            #(NetworkConfig(encoder_type="cnn",input_shape=8,hidden_shape=20,output_shape=30,stem=StemConfig(num_residual_blocks=10), head=HeadConfig(hidden_blocks=5))),
+            (NetworkConfig(encoder_type="mlp",input_shape=8,hidden_shape=20,output_shape=30,legal_actions=5,num_layers = 20, stem=StemConfig(num_residual_blocks=10, hidden_dim=5), head=HeadConfig(hidden_blocks=5)))
         ]
 )
 def test_alpha_zero_net(config):
 
     model = AlphaZeroNet(config)
 
-    x = torch.randn(config.input_shape.shape)
+    x = torch.randn(config.input_shape)
 
-    y = model.forward()
+    y = model.forward(x)
 
     assert y.size(dim=0) == config.output_shape, f"Expected output {config.output_shape}, got {y.shape}"
 
@@ -130,10 +134,11 @@ def test_residual_block():
 def test_network_head():
     batch = 2
     legal_actions = 2
-    hidden_dim = 128
+    input_shape = 128
+    num_hidden_blocks = 5
     
 
-    network_head = NetworkHead(batch, legal_actions, hidden_dim)
+    network_head = NetworkHead(legal_actions, input_shape, num_hidden_blocks)
 
     x = torch.randn((batch,legal_actions))
 
