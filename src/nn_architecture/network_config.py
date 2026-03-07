@@ -3,6 +3,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 import yaml
+from nn_architecture.environment_config import EnvironmentConfig
 
 CONFIG_PATH="./configs"
 
@@ -25,7 +26,7 @@ class NetworkConfig(BaseModel):
 
 class Configuration(BaseModel):
     network: NetworkConfig
-    env_name: str
+    env: EnvironmentConfig
 
 def load_config(path:str | Path)->Configuration:
     path = os.path.join(CONFIG_PATH, path)
