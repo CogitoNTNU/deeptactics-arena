@@ -1,0 +1,120 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import numpy as np
+from src.nn_architecture.network_config import NetworkConfig
+
+
+class AlphaZeroNet(nn.Module):
+    def __init__(self, config: NetworkConfig):
+        super().__init__()
+        
+        encoder_type = config.encoder_type
+        match encoder_type:
+            case "cnn":
+                self.model = CNNEncoder(config.input_shape)
+            case "mlp":
+                self.model = MLPEncoder(config.num_layers, config.input_shape, config.stem.block_size)
+        
+        # stem
+        self.common_blocks = nn.ModuleList([ResidualBlock(config.stem.block_size) for i in range(config.stem.num_residual_blocks)])
+        
+        # output head
+        self.head = NetworkHead(config.legal_actions, config.stem.block_size, config.head.hidden_blocks)
+        
+
+    def forward(self, obs: torch.Tensor):
+        x = self.model.forward(obs)
+        for i, block in enumerate(self.common_blocks):
+            x = block(x)
+        
+        # pred of values and policies
+        policies, values = self.head.forward(x)
+        return policies, values
+
+    def backward(self):
+        pass
+
+
+class CNNEncoder(nn.Module):
+    def __init__(self, num_layers: int, input_shape: tuple[int], output_shape: int):     #TODO Endre til tuple input osv
+
+        super().__init__()
+        
+        #self.module_list = nn.ModuleList([nn.Conv2d()])
+    
+    def forward(self):
+        pass
+        
+        
+
+
+class MLPEncoder(nn.Module):    #f : obs -> input
+    def __init__(self, num_layers: int, input_shape: int, output_shape: int):
+        super().__init__()
+
+        if input_shape <= 0:
+            raise ValueError
+        if output_shape <= 0:
+            raise ValueError
+
+        self.input_layer = nn.Linear(input_shape, out_features=128)
+        self.hidden_layers = nn.ModuleList([nn.Linear(128, 128) for i in range(num_layers)])
+        self.output_layer = nn.Linear(128, output_shape)
+
+    
+    def forward(self, observation: torch.Tensor) -> torch.Tensor:
+        x = self.input_layer(observation)
+        for i, layer in enumerate(self.hidden_layers):
+            x = layer(x)
+            x = nn.ReLU()(x)
+        x = self.output_layer(x)
+
+        return x
+
+
+
+class ResidualBlock(nn.Module):
+    def __init__(self, block_size: int, hidden_dim: int=128):
+        super().__init__()
+
+        self.layer1 = nn.Linear(block_size, hidden_dim)
+        self.layer2 = nn.Linear(hidden_dim, block_size)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        activation = self.layer1(x)
+        m = nn.LeakyReLU()
+        activation = m(activation)
+        activation = self.layer2(activation)
+        activation = m(activation)
+        
+        activation += x
+        activation = m(activation)
+        
+        return activation
+    
+
+class NetworkHead(nn.Module):
+    def __init__(self, legal_actions, input_shape, num_hidden_blocks):
+        super().__init__()
+        self.common_block = nn.ModuleList([ResidualBlock(input_shape) for i in range(num_hidden_blocks)])
+
+        self.value_head = nn.Linear(input_shape,1)
+        self.policy_head = nn.Linear(input_shape, legal_actions)
+        
+
+    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        
+        tanh = nn.Tanh()
+
+        value = self.value_head(x)
+        value = tanh(value)
+        
+        softmax = nn.Softmax()
+
+        policy_logits = self.policy_head(x)
+        policy_logits = softmax(policy_logits)
+
+        # [B, A], [B, 1]
+        return policy_logits, value
+        

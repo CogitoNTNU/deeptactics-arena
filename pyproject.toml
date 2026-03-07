@@ -12,6 +12,7 @@ dependencies = [
     "opencv-python>=4.13.0.92",
     "pettingzoo>=1.25.0",
     "pip>=26.0.1",
+    "pydantic-yaml>=1.6.0",
     "pygame>=2.6.1",
     "python-dotenv>=1.2.1",
     "setuptools<70",
