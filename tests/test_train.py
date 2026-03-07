@@ -47,17 +47,12 @@ def test_batch():
     optimizer = torch.optim.AdamW()
     
     params1 = model.parameters()
-    train_per_batch(td, model, optimizer)
+    train_one_epoch(td, model, optimizer)
     params2 = model.parameters()
 
-    changed = True
-    for p1, p2 in zip(params1, params2):
-        if p1 != p2:
-            break
-    else:
-        changed = False
     
-    assert changed, "The training did not change the parameters"
+    for p1, p2 in zip(params1, params2):
+        assert not torch.equal(p1, p2), "The training did not change the parameters"
 
 
 

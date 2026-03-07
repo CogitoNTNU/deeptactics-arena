@@ -17,57 +17,32 @@ def train(replay_buffer: ReplayBuffer, model: nn.Module, optimizer: torch.optim.
 
 def train_one_epoch(replay_buffer: list[TensorDict], model: nn.Module, optimizer: torch.optim.Optimizer, sample_size:int=16) -> float:
     running_loss = 0.0
-    batch = replay_buffer.sample(sample_size)
+    sampled_batches = replay_buffer.sample(sample_size)
         
-    batch_loss = train_per_batch(batch, model, optimizer)
-    running_loss += batch_loss
+    for batch in sampled_batches:
+        observations = batch["observation"]
+        values = batch["value"]
+        policies = batch["policies"]
+
+        optimizer.zero_grad()
+
+        pred_policies, pred_values = model.forward(observations)
+
+        loss = loss_function(pred_policies, pred_values, policies, values)
+        loss.backward()
+
+        optimizer.step()
+
+        batch_loss = loss.item()
+        running_loss += batch_loss
+
     wandb.log({"batch/loss": batch_loss})
     return running_loss
 
 
-def train_per_batch(tranjectories: TensorDict, model: nn.Module, optimizer: torch.optim.Optimizer) -> float:
-    observations = tranjectories["observation"]
-    values = tranjectories["value"]
-    policies = tranjectories["policies"]
-
-    optimizer.zero_grad()
-
-    pred_policies, pred_values = model(observations)
-
-    loss = loss_function(pred_policies, pred_values, policies, values)
-    loss.backward()
-
-    optimizer.step()
-
-    """
-    observation_dtype = torch.uint8 if observation.ndim == 3 else torch.float32
-
-        td = TensorDict(
-            {
-                "observation": torch.as_tensor(
-                    observation, dtype=observation_dtype, device="cpu"
-                ).contiguous(),
-                "value": torch.as_tensor(
-                    reward, dtype=torch.float32, device="cpu"
-                ).view(()),
-                "policies": torch.as_tensor(
-                    policies, dtype=torch.float32, device="cpu"
-                ).contiguous(),
-            
-            
-            },
-            batch_size=[],
-        )
-
-        self.replay_buffer.add(td)
-    """
-
-    return loss.item()
-
-
-def loss_function(pred_policies: torch.Tensor, pred_values: torch.Tensor, policies: torch.Tensor, values: torch.Tensor) ->float:
+def loss_function(pred_policies: torch.Tensor, pred_values: torch.Tensor, policies: torch.Tensor, values: torch.Tensor, MSE_coeff: float = 1) ->float:
     mse = nn.functional.mse_loss(pred_values, values)
     ce = nn.functional.cross_entropy(pred_policies, policies)
-    return ce + mse
+    return ce + MSE_coeff * mse
 
 
