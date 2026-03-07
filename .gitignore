@@ -258,3 +258,5 @@ Thumbs.db
 
 slurm_outputs/
 .vscode/
+
+wandb/
