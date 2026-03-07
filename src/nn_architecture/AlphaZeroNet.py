@@ -12,6 +12,7 @@ class AlphaZeroNet(nn.Module):
         encoder_type = config.encoder_type
         match encoder_type:
             case "cnn":
+                #TODO implement CNN
                 self.model = CNNEncoder(config.input_shape)
             case "mlp":
                 self.model = MLPEncoder(config.num_layers, config.input_shape, config.stem.block_size)
@@ -50,7 +51,7 @@ class CNNEncoder(nn.Module):
 
 
 class MLPEncoder(nn.Module):    #f : obs -> input
-    def __init__(self, num_layers: int, input_shape: int, output_shape: int):
+    def __init__(self, num_layers: int, input_shape: int, output_shape: int, hidden_dim: int = 128):
         super().__init__()
 
         if input_shape <= 0:
@@ -58,16 +59,19 @@ class MLPEncoder(nn.Module):    #f : obs -> input
         if output_shape <= 0:
             raise ValueError
 
-        self.input_layer = nn.Linear(input_shape, out_features=128)
-        self.hidden_layers = nn.ModuleList([nn.Linear(128, 128) for i in range(num_layers)])
-        self.output_layer = nn.Linear(128, output_shape)
+        self.input_layer = nn.Linear(input_shape, out_features=hidden_dim)
+        self.hidden_layers = nn.ModuleList([nn.Linear(hidden_dim, hidden_dim) for i in range(num_layers)])
+        self.output_layer = nn.Linear(hidden_dim, output_shape)
 
     
     def forward(self, observation: torch.Tensor) -> torch.Tensor:
+        leakyrelu = nn.LeakyReLU()
+
         x = self.input_layer(observation)
+        x = leakyrelu(x)
         for i, layer in enumerate(self.hidden_layers):
             x = layer(x)
-            x = nn.ReLU()(x)
+            x = leakyrelu(x)
         x = self.output_layer(x)
 
         return x
@@ -82,14 +86,16 @@ class ResidualBlock(nn.Module):
         self.layer2 = nn.Linear(hidden_dim, block_size)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        leakyrelu = nn.LeakyReLU()
+        
         activation = self.layer1(x)
-        m = nn.LeakyReLU()
-        activation = m(activation)
+        activation = leakyrelu(activation)
+
         activation = self.layer2(activation)
-        activation = m(activation)
+        activation = leakyrelu(activation)
         
         activation += x
-        activation = m(activation)
+        activation = leakyrelu(activation)
         
         return activation
     
@@ -104,17 +110,14 @@ class NetworkHead(nn.Module):
         
 
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        
         tanh = nn.Tanh()
-
         value = self.value_head(x)
         value = tanh(value)
         
         softmax = nn.Softmax()
-
         policy_logits = self.policy_head(x)
         policy_logits = softmax(policy_logits)
 
-        # [B, A], [B, 1]
+        # [B,A], [B,1]
         return policy_logits, value
         
