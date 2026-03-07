@@ -14,6 +14,8 @@ def train(replay_buffer: ReplayBuffer, model: nn.Module, optimizer: torch.optim.
 
         wandb.log({"epoch": epoch, "epoch/loss": avg_loss})
 
+    return model
+
 
 def train_one_epoch(replay_buffer: list[TensorDict], model: nn.Module, optimizer: torch.optim.Optimizer, sample_size:int=16) -> float:
     running_loss = 0.0
