@@ -6,16 +6,22 @@ readme = "README.md"
 requires-python = ">=3.12"
 license-files = ["LICENSE"]
 dependencies = [
+    "box2d>=2.3.10",
     "chess>=1.11.2",
+    "ipykernel>=7.2.0",
     "opencv-python>=4.13.0.92",
     "pettingzoo>=1.25.0",
+    "pip>=26.0.1",
+    "pydantic-yaml>=1.6.0",
     "pygame>=2.6.1",
     "python-dotenv>=1.2.1",
     "setuptools<70",
     "stable-baselines3>=2.7.1",
     "tensorboard>=2.20.0",
-    "tensorflow>=2.20.0",
+    "tensordict>=0.11.0",
     "torch>=2.10.0",
+    "torchrl>=0.11.1",
+    "torchvision>=0.25.0",
     "wandb>=0.25.0",
 ]
 
