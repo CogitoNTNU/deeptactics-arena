@@ -3,7 +3,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 import yaml
-from nn_architecture.environment_config import EnvironmentConfig
+from src.nn_architecture.environment_config import EnvironmentConfig
 
 CONFIG_PATH="./configs"
 

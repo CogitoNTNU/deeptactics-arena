@@ -5,7 +5,6 @@ from node import Node
 
 INF = 10000000
 
-
 class MCTS:
     def __init__(self, c=1.41):
         """
@@ -99,3 +98,4 @@ if __name__ == "__main__":
         state.apply_action(action)
         print(state)
         print()
+
