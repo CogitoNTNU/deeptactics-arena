@@ -4,12 +4,9 @@ import pytest
 from src.nn_architecture.network_config import NetworkConfig
 from src.nn_architecture.network_config import StemConfig
 from src.nn_architecture.network_config import HeadConfig
-
 from src.nn_architecture.AlphaZeroNet import MLPEncoder
 from src.nn_architecture.AlphaZeroNet import AlphaZeroNet
-
 from src.nn_architecture.AlphaZeroNet import ResidualBlock
-
 from src.nn_architecture.AlphaZeroNet import NetworkHead
 
 
@@ -35,21 +32,21 @@ def test_mlp_encoder(num_layers, input_shape, output_shape):
 
 
 def test_mlp_encoder_validation():
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError):
         input_shape = 0
         output_shape = 10
         num_layers = 5
 
-        encoder = MLPEncoder(num_layers, input_shape, output_shape)
+        MLPEncoder(num_layers, input_shape, output_shape)
 
 
 def test_mlp_encoder_validation_output():
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError):
         input_shape = 10
         output_shape = 0
         num_layers = 5
 
-        encoder = MLPEncoder(num_layers, input_shape, output_shape)
+        MLPEncoder(num_layers, input_shape, output_shape)
 
 
 """
@@ -124,7 +121,7 @@ def test_alpha_zero_net(config):
 
 
 def test_alpha_zero_validate_encoder():
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError):
         config = NetworkConfig(
             encoder_type="NOT_A_VALID_ENCODER",
             input_shape=10,
@@ -132,7 +129,7 @@ def test_alpha_zero_validate_encoder():
             output_shape=10,
         )
 
-        model = AlphaZeroNet(config)
+        AlphaZeroNet(config)
 
 
 def test_residual_block():
@@ -159,7 +156,6 @@ def test_network_head():
     x = torch.randn(batch, input_shape)
 
     policy, value = network_head.forward(x)
-
 
     assert value.min() >= -1 and value.max() <= 1, (
         f"Expected value in -1 to 1, got {value}"

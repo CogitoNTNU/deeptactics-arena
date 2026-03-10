@@ -1,11 +1,14 @@
 from pydantic import BaseModel
 
+
 class StemConfig(BaseModel):
     num_residual_blocks: int
     block_size: int
 
+
 class HeadConfig(BaseModel):
     hidden_blocks: int
+
 
 class NetworkConfig(BaseModel):
     encoder_type: str
@@ -15,4 +18,3 @@ class NetworkConfig(BaseModel):
     num_layers: int
     stem: StemConfig
     head: HeadConfig
-

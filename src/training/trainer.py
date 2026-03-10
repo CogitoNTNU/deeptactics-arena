@@ -2,11 +2,15 @@ import torch
 from torchrl.data import ReplayBuffer
 import torch.nn as nn
 from tensordict import TensorDict
-from typing import Callable
 import wandb
 
 
-def train(replay_buffer: ReplayBuffer, model: nn.Module, optimizer: torch.optim.Optimizer, epochs: int = 10):
+def train(
+    replay_buffer: ReplayBuffer,
+    model: nn.Module,
+    optimizer: torch.optim.Optimizer,
+    epochs: int = 10,
+):
     for epoch in range(epochs):
         model.train(True)
 
@@ -17,10 +21,15 @@ def train(replay_buffer: ReplayBuffer, model: nn.Module, optimizer: torch.optim.
     return model
 
 
-def train_one_epoch(replay_buffer: list[TensorDict], model: nn.Module, optimizer: torch.optim.Optimizer, sample_size:int=16) -> float:
+def train_one_epoch(
+    replay_buffer: list[TensorDict],
+    model: nn.Module,
+    optimizer: torch.optim.Optimizer,
+    sample_size: int = 16,
+) -> float:
     running_loss = 0.0
     sampled_batches = replay_buffer.sample(sample_size)
-        
+
     for batch in sampled_batches:
         observations = batch["observation"]
         values = batch["value"]
@@ -42,9 +51,13 @@ def train_one_epoch(replay_buffer: list[TensorDict], model: nn.Module, optimizer
     return running_loss
 
 
-def loss_function(pred_policies: torch.Tensor, pred_values: torch.Tensor, policies: torch.Tensor, values: torch.Tensor, MSE_coeff: float = 1) ->float:
+def loss_function(
+    pred_policies: torch.Tensor,
+    pred_values: torch.Tensor,
+    policies: torch.Tensor,
+    values: torch.Tensor,
+    MSE_coeff: float = 1,
+) -> float:
     mse = nn.functional.mse_loss(pred_values, values)
     ce = nn.functional.cross_entropy(pred_policies, policies)
     return ce + MSE_coeff * mse
-
-

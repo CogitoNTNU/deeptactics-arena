@@ -1,6 +1,5 @@
 from src.configuration import load_config
 from src.nn_architecture.AlphaZeroNet import AlphaZeroNet
-from torch import Tensor
 import torch
 from torchrl.data.replay_buffers import PrioritizedReplayBuffer
 from tensordict import TensorDict

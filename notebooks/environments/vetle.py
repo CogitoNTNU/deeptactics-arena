@@ -11,9 +11,21 @@ for agent in env.agent_iter():
         action = None
     else:
         action = env.action_space(agent).sample()
-        print([i for i in range(len(observation["action_mask"])) if observation["action_mask"][i] == 1])
-        action = random.choice([i for i in range(len(observation["action_mask"])) if observation["action_mask"][i] == 1])
-    
+        print(
+            [
+                i
+                for i in range(len(observation["action_mask"]))
+                if observation["action_mask"][i] == 1
+            ]
+        )
+        action = random.choice(
+            [
+                i
+                for i in range(len(observation["action_mask"]))
+                if observation["action_mask"][i] == 1
+            ]
+        )
+
     env.step(action)
     print(info)
 

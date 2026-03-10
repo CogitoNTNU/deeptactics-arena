@@ -7,7 +7,7 @@ import yaml
 from src.nn_architecture.network_config import NetworkConfig
 from src.training.train_config import TrainConfiguration
 
-CONFIG_PATH="./configs"
+CONFIG_PATH = "./configs"
 
 
 class Configuration(BaseModel):
@@ -15,9 +15,9 @@ class Configuration(BaseModel):
     train: TrainConfiguration
     env_name: str
 
-def load_config(path:str | Path)->Configuration:
+
+def load_config(path: str | Path) -> Configuration:
     path = os.path.join(CONFIG_PATH, path)
     with open(path) as file:
         raw_config = yaml.safe_load(file)
     return Configuration(**raw_config)
-
