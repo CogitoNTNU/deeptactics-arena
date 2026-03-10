@@ -54,8 +54,8 @@ def test_batch():
     )
     replay_buffer = PrioritizedReplayBuffer(alpha=0.6, beta=0.4)
     replay_buffer.add(td)
-    config = load_config("config.yaml")
-    model: torch.nn.Module = AlphaZeroNet(config)
+    network_config = load_config("config.yaml").network
+    model: torch.nn.Module = AlphaZeroNet(network_config)
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.001)
 
     params1 = model.parameters()
