@@ -1,10 +1,11 @@
+from src.environment import build_environment
 import torch
 import pytest
 
 from src.nn_architecture.network_config import NetworkConfig
 from src.nn_architecture.network_config import StemConfig
 from src.nn_architecture.network_config import HeadConfig
-from src.nn_architecture.AlphaZeroNet import MLPEncoder
+from src.nn_architecture.AlphaZeroNet import CNNEncoder, MLPEncoder
 from src.nn_architecture.AlphaZeroNet import AlphaZeroNet
 from src.nn_architecture.AlphaZeroNet import ResidualBlock
 from src.nn_architecture.AlphaZeroNet import NetworkHead
@@ -49,51 +50,41 @@ def test_mlp_encoder_validation_output():
         MLPEncoder(num_layers, input_shape, output_shape)
 
 
-"""
-@pytest.mark.parametrize(
-        "num_layers, input_shape, output_shape",
-        [
-            (10, (4, 4), 2),
-            (10, 8, 2),
-            (0, (8,8), 2),
-            (10, (1000,4),2000),
-        ]
-)
-def test_cnn_encoder(num_layers, input_shape, output_shape):
-    
-    encoder = CNNEncoder(num_layers, input_shape, output_shape)
+@pytest.mark.parametrize("env_name", ["chess", "connect_four", "tic_tac_toe"])
+def test_cnn_encoder_for_all_games(env_name):
+    env = build_environment(env_name)
 
-    x = torch.randn(input_shape) 
+    output_shape: int = 128
+    num_layers: int = 3
+    hidden_channels: int = 2
+    env.reset()
 
+    agent = env.agents[0]
+    obs_shape = env.observation_space(agent)["observation"]._shape
+    encoder = CNNEncoder(obs_shape, output_shape, num_layers, hidden_channels)
+
+    x = torch.randn(*obs_shape)
     y = encoder.forward(x)
 
-    assert y.size(dim=0) == output_shape, f"Expected output {output_shape}, got {y.shape}"
-
-
-def test_cnn_encoder_validation():
-    with pytest.raises(ValueError) as excinfo:
-        input_shape = 0
-        output_shape = 10
-        num_layers = 5
-
-        encoder = CNNEncoder(num_layers, input_shape, output_shape)
-
-
-def test_cnn_encoder_validation_output():
-    with pytest.raises(ValueError) as excinfo:
-        input_shape = 10
-        output_shape = 0
-        num_layers = 5
-
-        encoder = CNNEncoder(num_layers, input_shape, output_shape)   
-
-"""
+    assert y.shape[-1] == output_shape, (
+        f"Expected output last dim {output_shape}, got {y.shape}"
+    )
 
 
 @pytest.mark.parametrize(
     "config",
     [
-        # (NetworkConfig(encoder_type="cnn",input_shape=8,hidden_shape=20,output_shape=30,stem=StemConfig(num_residual_blocks=10), head=HeadConfig(hidden_blocks=5))),
+        (
+            NetworkConfig(
+                encoder_type="cnn",
+                input_shape=(8, 8, 111),
+                hidden_shape=20,
+                legal_actions=5,
+                num_layers=20,
+                stem=StemConfig(num_residual_blocks=10, block_size=5),
+                head=HeadConfig(hidden_blocks=5),
+            )
+        ),
         (
             NetworkConfig(
                 encoder_type="mlp",
@@ -104,7 +95,7 @@ def test_cnn_encoder_validation_output():
                 stem=StemConfig(num_residual_blocks=10, block_size=5),
                 head=HeadConfig(hidden_blocks=5),
             )
-        )
+        ),
     ],
 )
 def test_alpha_zero_net(config):
