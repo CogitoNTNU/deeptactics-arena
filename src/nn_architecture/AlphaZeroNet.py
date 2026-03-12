@@ -11,12 +11,16 @@ class AlphaZeroNet(nn.Module):
         match encoder_type:
             case "cnn":
                 # TODO implement CNN
-                self.model = CNNEncoder(config.input_shape)
+                self.model = CNNEncoder(
+                    input_shape=config.input_shape,
+                    output_shape=config.stem.block_size,
+                    num_layers=config.num_layers,
+                )
             case "mlp":
                 self.model = MLPEncoder(
-                    config.num_layers,
-                    config.input_shape,
-                    config.stem.block_size,
+                    num_layers=config.num_layers,
+                    input_shape=config.input_shape,
+                    output_shape=config.stem.block_size,
                 )
             case _:
                 raise ValueError(f"Invalid encoder type: {encoder_type}")
@@ -43,20 +47,88 @@ class AlphaZeroNet(nn.Module):
         policies, values = self.head.forward(x)
         return policies, values
 
-    def backward(self):
-        pass
-
 
 class CNNEncoder(nn.Module):
     def __init__(
-        self, num_layers: int, input_shape: tuple[int], output_shape: int
-    ):  # TODO Endre til tuple input osv
+        self,
+        input_shape: tuple[int, int, int],
+        output_shape: int,
+        num_layers: int = 3,
+        hidden_channels: int = 128,
+    ):
+        """
+        Args:
+            input_shape: (H, W, C) of the input observation
+            output_shape: dimension of the output vector
+            num_layers: number of convolutional layers in the stack
+            hidden_channels: number of channels in each convolutional layer
+        """
         super().__init__()
 
-        # self.module_list = nn.ModuleList([nn.Conv2d()])
+        if len(input_shape) != 3:
+            raise ValueError("CNNEncoder expects input_shape = (H, W, C)")
 
-    def forward(self):
-        pass
+        height, width, channels = input_shape
+
+        if height <= 0 or width <= 0 or channels <= 0:
+            raise ValueError("All input dimensions must be positive")
+        if output_shape <= 0:
+            raise ValueError("output_shape must be positive")
+        if num_layers <= 0:
+            raise ValueError("num_layers must be positive")
+
+        conv_layers = []
+
+        in_channels = channels
+        for _ in range(num_layers):
+            conv_layers.extend(
+                [
+                    nn.Conv2d(
+                        in_channels=in_channels,
+                        out_channels=hidden_channels,
+                        kernel_size=3,
+                        stride=1,
+                        padding=1,
+                    ),
+                    nn.BatchNorm2d(hidden_channels),
+                    nn.LeakyReLU(),
+                ]
+            )
+            in_channels = hidden_channels
+
+        self.conv_stack = nn.Sequential(*conv_layers)
+
+        self.flatten = nn.Flatten()
+        self.output_layer = nn.Linear(hidden_channels * height * width, output_shape)
+
+    def forward(self, observation: torch.Tensor) -> torch.Tensor:
+        """
+        Args:
+            observation: (B, H, W, C) or (H, W, C) tensor of observations
+        Returns:
+            (B, output_shape) tensor of encoded observations
+        """
+
+        was_unbatched = False
+
+        if observation.dim() == 3:
+            observation = observation.unsqueeze(0)
+            was_unbatched = True
+
+        if observation.dim() != 4:
+            raise ValueError(
+                f"Expected input of shape (H,W,C) or (B,H,W,C), got {observation.shape}"
+            )
+
+        x = observation.permute(0, 3, 1, 2)  # (B, C, H, W)
+        x = self.conv_stack(x)
+        x = self.flatten(x)
+        x = self.output_layer(x)
+
+        if was_unbatched:
+            x = x.squeeze(0)
+
+        return x
 
 
 class MLPEncoder(nn.Module):  # f : obs -> input
