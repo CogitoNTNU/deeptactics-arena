@@ -105,10 +105,32 @@ def test_alpha_zero_net(config):
 
     policies, value = model.forward(x)
 
-    assert policies.size(dim=0) == config.legal_actions, (
+    assert policies.shape[-1] == config.legal_actions, (
         f"Expected output {config.legal_actions}, got {policies.shape}"
     )
-    assert value.size(dim=0) == 1, f"Expected output {1}, got {policies.shape}"
+    assert value.shape[-1] == 1, f"Expected output {1}, got {value.shape}"
+
+
+def test_batched_alpha_zero_net():
+    config = NetworkConfig(
+        encoder_type="cnn",
+        input_shape=(8, 8, 111),
+        hidden_shape=20,
+        legal_actions=5,
+        num_layers=20,
+        stem=StemConfig(num_residual_blocks=10, block_size=5),
+        head=HeadConfig(hidden_blocks=5),
+    )
+    model = AlphaZeroNet(config)
+
+    batched_obs = torch.randn(2, *config.input_shape)
+
+    policies, value = model.forward(batched_obs)
+
+    assert policies.shape[-1] == config.legal_actions, (
+        f"Expected output {config.legal_actions}, got {policies.shape}"
+    )
+    assert value.shape[-1] == 1, f"Expected output {1}, got {value.shape}"
 
 
 def test_alpha_zero_validate_encoder():
