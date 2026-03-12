@@ -122,15 +122,15 @@ def test_batched_alpha_zero_net():
         head=HeadConfig(hidden_blocks=5),
     )
     model = AlphaZeroNet(config)
-
-    batched_obs = torch.randn(2, *config.input_shape)
+    batch_size = 2
+    batched_obs = torch.randn(batch_size, *config.input_shape)
 
     policies, value = model.forward(batched_obs)
 
-    assert policies.shape[-1] == config.legal_actions, (
+    assert policies.shape == (batch_size, config.legal_actions), (
         f"Expected output {config.legal_actions}, got {policies.shape}"
     )
-    assert value.shape[-1] == 1, f"Expected output {1}, got {value.shape}"
+    assert value.shape == (batch_size, 1), f"Expected output {1}, got {value.shape}"
 
 
 def test_alpha_zero_validate_encoder():
