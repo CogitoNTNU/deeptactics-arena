@@ -109,20 +109,24 @@ class CNNEncoder(nn.Module):
             (B, output_shape) tensor of encoded observations
         """
 
+        was_unbatched = False
+
         if observation.dim() == 3:
             observation = observation.unsqueeze(0)
+            was_unbatched = True
 
         if observation.dim() != 4:
             raise ValueError(
-                f"Expected observation of shape (B,H,W,C) or (H,W,C), got {observation.shape}"
+                f"Expected input of shape (H,W,C) or (B,H,W,C), got {observation.shape}"
             )
 
-        # Convert channels-last to channels-first for Conv2d
         x = observation.permute(0, 3, 1, 2)  # (B, C, H, W)
-
         x = self.conv_stack(x)
         x = self.flatten(x)
         x = self.output_layer(x)
+
+        if was_unbatched:
+            x = x.squeeze(0)
 
         return x
 
