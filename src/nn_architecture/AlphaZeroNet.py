@@ -34,7 +34,7 @@ class AlphaZeroNet(nn.Module):
             config.legal_actions, config.stem.block_size, config.head.hidden_blocks
         )
 
-    def forward(self, obs: torch.Tensor):
+    def forward(self, obs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         x = self.model.forward(obs)
         for i, block in enumerate(self.common_blocks):
             x = block(x)
