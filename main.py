@@ -18,12 +18,13 @@ def generate_training_data(
     env = tictactoe_v3.env(render_mode="ansi")
     env.reset()
     observation, reward, terminated, truncated, info = env.last()
-    montecarlo = MCTS(observation)
+    monte_carlo = MCTS(enviroment=env, model=model)
 
     for i in range(500):
-        policy_values = MCTS.run_simulations(1000)
+        policy_values = monte_carlo.run_simulations(1000)
         action = torch.multinomial(policy_values, num_samples=1).item()
-        observation, reward, terminated, turnc
+        env.step(action)
+        observation, reward, terminated, truncated, info = env.last()
 
         td = TensorDict(
             {
