@@ -257,3 +257,6 @@ Thumbs.db
 *.zip
 
 slurm_outputs/
+.vscode/
+
+wandb/

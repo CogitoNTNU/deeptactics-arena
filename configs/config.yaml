@@ -1,6 +1,6 @@
 network:
-  encoder_type: cnn
-  input_shape: [6,7,2]
+  encoder_type: mlp
+  input_shape: 10
   hidden_shape: 128
   legal_actions: 7
   num_layers: 4
@@ -9,4 +9,10 @@ network:
     block_size: 128
   head:
     hidden_blocks: 4
+train:
+  learning_rate: 0.001
+  batch_size: 32
+  num_epochs: 10
+  num_episodes: 200
+  min_replay_size: 16
 env_name: connect_four

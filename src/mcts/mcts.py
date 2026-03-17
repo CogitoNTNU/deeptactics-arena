@@ -1,4 +1,3 @@
-﻿import random
 import numpy as np
 import pyspiel
 from node import Node
@@ -43,7 +42,7 @@ class MCTS:
         """
         legal_actions = node.state.legal_actions()
         for action in legal_actions:
-            next_state, _ , _ , _, _ = node.state.step(action)
+            next_state, _, _, _, _ = node.state.step(action)
             child_node = Node(node, action, next_state)
             node.add_child(child_node)
 
@@ -74,7 +73,7 @@ class MCTS:
         Simulate a game to its conclusion.
         Random moves are selected all the way.
         """
-        
+
         for n in range(num_simulations):
             selected_node = self.select(state)
             if selected_node.node_visited == 0:

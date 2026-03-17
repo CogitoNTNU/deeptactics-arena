@@ -1,15 +1,12 @@
-import os
-from pathlib import Path
-
 from pydantic import BaseModel
 import yaml
 from src.nn_architecture.environment_config import EnvironmentConfig
 
-CONFIG_PATH="./configs"
 
 class StemConfig(BaseModel):
     num_residual_blocks: int
     block_size: int
+
 
 class HeadConfig(BaseModel):
     hidden_blocks: int
@@ -25,7 +22,6 @@ class NetworkConfig(BaseModel):
     head: HeadConfig
 
 class Configuration(BaseModel):
-    network: NetworkConfig
     env: EnvironmentConfig
 
 def load_config(path:str | Path)->Configuration:
