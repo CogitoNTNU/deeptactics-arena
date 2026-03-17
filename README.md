@@ -16,7 +16,7 @@
 
 - [DeepTactics Arena](#deeptactics-arena)
   - [Description](#description)
-  - [🛠️ Prerequisites](#️-prerequisites)
+  - [🛠️ Prerequisites](#%EF%B8%8F-prerequisites)
   - [Getting started](#getting-started)
   - [Usage](#usage)
     - [📖 Generate Documentation Site](#-generate-documentation-site)
@@ -44,7 +44,6 @@ For example: OS version, programs, libraries, etc.
 
 ## Getting started
 
-
 1. **Clone the repository**:
 
    ```sh
@@ -52,21 +51,24 @@ For example: OS version, programs, libraries, etc.
    cd deeptactics-arena
    ```
 
-2. **Install dependencies**:
-   
+1. **Install dependencies**:
+
    ```sh
    uv sync
    ```
 
-3. **Configure environment variables**:
-    
-    This project uses environment variables for configuration. Copy the example environment file to create your own:
-    ```sh
-    cp .env.example .env
-    ```
-    Then edit the `.env` file to include your specific configuration settings.
+1. **Configure environment variables**:
 
-4. **Set up pre commit** (only for development):
+   This project uses environment variables for configuration. Copy the example environment file to create your own:
+
+   ```sh
+   cp .env.example .env
+   ```
+
+   Then edit the `.env` file to include your specific configuration settings.
+
+1. **Set up pre commit** (only for development):
+
    ```sh
    uv run pre-commit install
    ```
