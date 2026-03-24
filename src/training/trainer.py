@@ -1,5 +1,3 @@
-import tempfile
-
 import torch
 from torchrl.data import ReplayBuffer
 import torch.nn as nn
@@ -7,6 +5,7 @@ from tensordict import TensorDict
 import wandb
 
 MODELS_PATH = "models"
+
 
 def train(
     replay_buffer: ReplayBuffer,
@@ -26,13 +25,14 @@ def train(
         # upload model artifact
         if avg_loss < best_loss:
             best_loss = avg_loss
-            model_name = f"{MODELS_PATH}/best_model_epoch_{epoch}_loss_{avg_loss:.3f}.pth"
+            model_name = (
+                f"{MODELS_PATH}/best_model_epoch_{epoch}_loss_{avg_loss:.3f}.pt"
+            )
+
             torch.save(model.state_dict(), model_name)
             artifact = wandb.Artifact("deeptactics_arena", type="model")
             artifact.add_file(model_name)
             wandb.log_artifact(artifact)
-
-
 
     return model
 
