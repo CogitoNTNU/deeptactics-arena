@@ -15,13 +15,13 @@ We want to test:
 
 
 def test_loss():
-    pred_policies = torch.Tensor([5.0, 5.0, 5.0])
+    pred_policies = torch.Tensor([0.2, 0.5, 0.3])  # softmax output (sums to 1)
     pred_values = torch.Tensor([2.0, 2.0, 2.0])
 
-    policies = torch.Tensor([3.0, 3.0, 3.0])
+    policies = torch.Tensor([0.1, 0.7, 0.2])  # MCTS policy target (sums to 1)
     values = torch.Tensor([4.0, 4.0, 4.0])
 
-    correct_value = 13.887510299682617  # torch.nn.functional.mse_loss(pred_values, values) + torch.nn.functional.cross_entropy(pred_policies, policies)
+    correct_value = 4.886941432952881  # -sum(pi * log(p)) + mse(pred_values, values)
 
     loss_fn_loss = loss_function(pred_policies, pred_values, policies, values)
 
