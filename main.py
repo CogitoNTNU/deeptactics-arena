@@ -6,6 +6,7 @@ from src.configuration import Configuration
 from src.training.trainer import train
 from src.configuration import load_config
 from src.nn_architecture.AlphaZeroNet import AlphaZeroNet
+from src.utils.record import record_episode
 from pettingzoo.classic import tictactoe_v3
 from tensordict import TensorDict
 import torch
@@ -55,6 +56,7 @@ def training_loop(config: Configuration):
 
         if len(replay_buffer) >= config.train.min_replay_size:
             model = train(replay_buffer, model, optimizer, config.train.num_epochs)
+            record_episode(config.env_name, episode)
 
     # TODO implement training loop herefrom src.nn_architecture.network_config import load_config, Configuration
 
