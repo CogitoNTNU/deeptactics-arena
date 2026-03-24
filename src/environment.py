@@ -1,14 +1,17 @@
-from pettingzoo import AECEnv
-from pettingzoo.classic import chess_v6, connect_four_v3, tictactoe_v3
+from src.environments.chess_wrapper import CloneableChess
+from src.environments.connect_four_wrapper import CloneableConnectFour
+from src.environments.tic_tac_toe_wrapper import CloneableTicTacToe
 
 
-def build_environment(env_name: str) -> AECEnv:
+def build_environment(
+    env_name: str,
+) -> CloneableChess | CloneableConnectFour | CloneableTicTacToe:
     match env_name.lower():
         case "chess":
-            return chess_v6.env()
+            return CloneableChess()
         case "connect_four":
-            return connect_four_v3.env()
+            return CloneableConnectFour()
         case "tic_tac_toe":
-            return tictactoe_v3.env()
+            return CloneableTicTacToe()
         case _:
             raise ValueError(f"Unknown environment: {env_name}")

@@ -1,9 +1,10 @@
 import copy
 
+from pettingzoo import AECEnv
 from pettingzoo.classic.tictactoe.tictactoe import raw_env as TicTacToeRawEnv
 
 
-class CloneableTicTacToe:
+class CloneableTicTacToe(AECEnv):
     """
     Thin wrapper around tictactoe raw_env that adds clone() support for MCTS.
     Uses the raw env directly (no OrderEnforcingWrapper) so state can be copied.
@@ -45,6 +46,12 @@ class CloneableTicTacToe:
     def reset(self, seed=None, options=None):
         return self._env.reset(seed=seed, options=options)
 
+    def observation_space(self, agent):
+        return self._env.observation_space(agent)
+
+    def action_space(self, agent):
+        return self._env.action_space(agent)
+
     def legal_moves(self):
         return self._env.board.legal_moves()
 
@@ -71,6 +78,28 @@ class CloneableTicTacToe:
     @property
     def board(self):
         return self._env.board
+
+    def render(self):
+        return self._env.render()
+
+    def close(self):
+        return self._env.close()
+
+    @property
+    def metadata(self):
+        return self._env.metadata
+
+    @property
+    def possible_agents(self):
+        return self._env.possible_agents
+
+    @property
+    def infos(self):
+        return self._env.infos
+
+    @property
+    def _cumulative_rewards(self):
+        return self._env._cumulative_rewards
 
     def is_done(self):
         return all(self._env.terminations.values()) or all(

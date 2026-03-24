@@ -1,10 +1,10 @@
 import copy
 
-import numpy as np
+from pettingzoo import AECEnv
 from pettingzoo.classic.chess.chess import raw_env as ChessRawEnv
 
 
-class CloneableChess:
+class CloneableChess(AECEnv):
     """
     Thin wrapper around chess raw_env that adds clone() support for MCTS.
     Uses the raw env directly (no OrderEnforcingWrapper) so state can be copied.
@@ -47,6 +47,12 @@ class CloneableChess:
     def reset(self, seed=None, options=None):
         return self._env.reset(seed=seed, options=options)
 
+    def observation_space(self, agent):
+        return self._env.observation_space(agent)
+
+    def action_space(self, agent):
+        return self._env.action_space(agent)
+
     def legal_moves(self):
         from pettingzoo.classic.chess import chess_utils
         return chess_utils.legal_moves(self._env.board)
@@ -78,6 +84,28 @@ class CloneableChess:
     @property
     def board_history(self):
         return self._env.board_history
+
+    def render(self):
+        return self._env.render()
+
+    def close(self):
+        return self._env.close()
+
+    @property
+    def metadata(self):
+        return self._env.metadata
+
+    @property
+    def possible_agents(self):
+        return self._env.possible_agents
+
+    @property
+    def infos(self):
+        return self._env.infos
+
+    @property
+    def _cumulative_rewards(self):
+        return self._env._cumulative_rewards
 
     def is_done(self):
         return all(self._env.terminations.values()) or all(
