@@ -49,7 +49,7 @@ def training_loop(config: Configuration):
 
     model = AlphaZeroNet(config.network)
 
-    optimizer = AdamW(model.parameters(), lr=config.train.learning_rate)
+    optimizer = AdamW(model.parameters(), lr=config.train.learning_rate, weight_decay=config.weight_decay)
 
     for episode in range(config.train.num_episodes):
         replay_buffer = generate_training_data(replay_buffer, config, model)
