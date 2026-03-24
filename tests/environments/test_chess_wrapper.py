@@ -1,4 +1,17 @@
+from pettingzoo import AECEnv
+from pettingzoo.test import api_test
+
 from src.environments.chess_wrapper import CloneableChess
+
+
+def test_implements_aec_env():
+    """Wrapper must be an AECEnv instance."""
+    assert isinstance(CloneableChess(), AECEnv)
+
+
+def test_aec_api():
+    """Wrapper must pass PettingZoo's full AECEnv API test."""
+    api_test(CloneableChess(), num_cycles=10)
 
 
 def test_clone_has_same_state():

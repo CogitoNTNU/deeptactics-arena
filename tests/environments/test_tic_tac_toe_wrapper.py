@@ -1,4 +1,17 @@
+from pettingzoo import AECEnv
+from pettingzoo.test import api_test
+
 from src.environments.tic_tac_toe_wrapper import CloneableTicTacToe
+
+
+def test_implements_aec_env():
+    """Wrapper must be an AECEnv instance."""
+    assert isinstance(CloneableTicTacToe(), AECEnv)
+
+
+def test_aec_api():
+    """Wrapper must pass PettingZoo's full AECEnv API test."""
+    api_test(CloneableTicTacToe(), num_cycles=10)
 
 
 def test_clone_has_same_state():
