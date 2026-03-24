@@ -12,6 +12,16 @@ def test_clone_has_same_state():
     assert clone.agent_selection == env.agent_selection
 
 
+def test_clone_board_is_different_object():
+    """The clone's board list must be a distinct object from the original."""
+    env = CloneableConnectFour()
+    env.step(3)
+
+    clone = env.clone()
+
+    assert id(clone.board) != id(env.board)
+
+
 def test_clone_is_independent():
     """Stepping the clone should not affect the original, and vice versa."""
     env = CloneableConnectFour()
