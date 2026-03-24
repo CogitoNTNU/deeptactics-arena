@@ -8,6 +8,8 @@ from src.configuration import Configuration
 from src.training.trainer import train
 from src.configuration import load_config
 from src.nn_architecture.AlphaZeroNet import AlphaZeroNet
+from src.utils.record import record_episode
+from pettingzoo.classic import tictactoe_v3
 from src.environment import build_environment
 from tensordict import TensorDict
 import torch
@@ -55,7 +57,8 @@ def training_loop(config: Configuration):
 
 
     model = AlphaZeroNet(config.network)
-    optimizer = AdamW(model.parameters(), lr=config.train.learning_rate)
+
+    optimizer = AdamW(model.parameters(), lr=config.train.learning_rate, weight_decay=config.weight_decay)
 
     model, optimizer = accelerator.prepare(model, optimizer)
 
@@ -63,7 +66,8 @@ def training_loop(config: Configuration):
         replay_buffer = generate_training_data(replay_buffer, config, model)
 
         if len(replay_buffer) >= config.train.min_replay_size:
-            model = train(replay_buffer, model, optimizer, config.train.num_epochs, accelerator)
+            model = train(replay_buffer, model, optimizer, config.train.num_epochs)
+            record_episode(config.env_name, episode)
 
     # TODO implement training loop herefrom src.nn_architecture.network_config import load_config, Configuration
 

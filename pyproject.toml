@@ -23,7 +23,7 @@ dependencies = [
     "torch>=2.10.0",
     "torchrl>=0.11.1",
     "torchvision>=0.25.0",
-    "wandb>=0.25.0",
+    "wandb[media]>=0.25.0",
 ]
 
 

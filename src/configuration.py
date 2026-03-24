@@ -16,7 +16,7 @@ class Configuration(BaseModel):
     train: TrainConfiguration
     mcts: MCTSConfiguration
     env_name: str
-
+    weight_decay = 1e-4
 
 def load_config(path: str | Path) -> Configuration:
     path = os.path.join(CONFIG_PATH, path)

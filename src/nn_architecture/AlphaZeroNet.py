@@ -10,7 +10,6 @@ class AlphaZeroNet(nn.Module):
         encoder_type = config.encoder_type
         match encoder_type:
             case "cnn":
-                # TODO implement CNN
                 self.model = CNNEncoder(
                     input_shape=config.input_shape,
                     output_shape=config.stem.block_size,
