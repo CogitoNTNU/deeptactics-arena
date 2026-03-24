@@ -6,19 +6,23 @@ import torch.nn as nn
 from tensordict import TensorDict
 import wandb
 
+from accelerate import Accelerator
+
 MODELS_PATH = "models"
 
 def train(
     replay_buffer: ReplayBuffer,
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
+    accelerator: Accelerator,
     epochs: int = 10,
+    
 ):
     best_loss = float("inf")
     for epoch in range(epochs):
         model.train(True)
 
-        avg_loss = train_one_epoch(replay_buffer, model, optimizer)
+        avg_loss = train_one_epoch(replay_buffer, model, optimizer, accelerator)
 
         wandb.log({"epoch": epoch, "epoch/loss": avg_loss})
 
@@ -41,6 +45,7 @@ def train_one_epoch(
     replay_buffer: list[TensorDict],
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
+    accelerator: Accelerator,
     sample_size: int = 16,
 ) -> float:
     running_loss = 0.0
@@ -56,7 +61,7 @@ def train_one_epoch(
         pred_policies, pred_values = model.forward(observations)
 
         loss = loss_function(pred_policies, pred_values, policies, values)
-        loss.backward()
+        accelerator.backward(loss)
 
         optimizer.step()
 

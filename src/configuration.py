@@ -6,6 +6,7 @@ import yaml
 
 from src.nn_architecture.network_config import NetworkConfig
 from src.training.train_config import TrainConfiguration
+from src.training.vetle.mcts_config import MCTSConfiguration
 
 CONFIG_PATH = "./configs"
 
@@ -13,6 +14,7 @@ CONFIG_PATH = "./configs"
 class Configuration(BaseModel):
     network: NetworkConfig
     train: TrainConfiguration
+    mcts: MCTSConfiguration
     env_name: str
 
 
