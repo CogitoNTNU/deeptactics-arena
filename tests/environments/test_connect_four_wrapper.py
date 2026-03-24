@@ -1,4 +1,4 @@
-from src.connect_four_wrapper import CloneableConnectFour
+from src.environments.connect_four_wrapper import CloneableConnectFour
 
 
 def test_clone_has_same_state():

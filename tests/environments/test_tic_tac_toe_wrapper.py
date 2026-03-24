@@ -1,4 +1,4 @@
-from src.tic_tac_toe_wrapper import CloneableTicTacToe
+from src.environments.tic_tac_toe_wrapper import CloneableTicTacToe
 
 
 def test_clone_has_same_state():
@@ -33,5 +33,7 @@ def test_clone_is_independent():
 
     clone.step(0)  # player_2 plays top-left on the clone only
 
-    assert env.board.squares == squares_before, "Original board changed after stepping the clone"
+    assert env.board.squares == squares_before, (
+        "Original board changed after stepping the clone"
+    )
     assert clone.board.squares != squares_before, "Clone board should have changed"
