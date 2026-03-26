@@ -1,5 +1,5 @@
 from torchrl.data import ReplayBuffer, PrioritizedReplayBuffer
-from torchrl.data import LazyMemmapStorage
+from torchrl.data import LazyTensorStorage
 from torch.optim import AdamW
 
 from src.training.vetle.mcts import MCTS
@@ -20,27 +20,39 @@ from accelerate import Accelerator
 
 def generate_training_data(
     replay_buffer: ReplayBuffer, config: Configuration, model=None
-) -> ReplayBuffer:  # TODO implement later with MCTS
+) -> ReplayBuffer: 
     env = build_environment("tic_tac_toe")    
     env.reset()
     observation, reward, terminated, truncated, info = env.last()
     monte_carlo = MCTS(env=env, config=config)
 
-    for i in range(500):
+    trajectories: list[TensorDict] = []
+
+    while True:
         policy_values = monte_carlo.run_simulations(1000)
         action = torch.multinomial(policy_values, num_samples=1).item()
-        env.step(action)
-        observation, reward, terminated, truncated, info = env.last()
 
         td = TensorDict(
             {
                 "observation": observation,
-                "value": torch.zeros(1),
-                "policies": torch.ones(config.network.legal_actions),
+                "policies": policy_values,
             },
             batch_size=[],
         )
-    replay_buffer.add(td)
+        trajectories.append(td)
+
+        env.step(action)
+        observation, reward, terminated, truncated, info = env.last()
+        if terminated or truncated:
+            break
+
+    outcome = reward
+    for i, td in enumerate(reversed(trajectories)):
+        td["value"] = torch.tensor(outcome, dtype=torch.float32)
+        outcome = -outcome
+
+    for td in trajectories:
+        replay_buffer.add(td)
 
     return replay_buffer
 
@@ -49,7 +61,7 @@ def training_loop(config: Configuration):
     replay_buffer: ReplayBuffer = PrioritizedReplayBuffer(
         alpha=0.7,
         beta=0.9,
-        storage=LazyMemmapStorage(max_size=1_000_000),
+        storage=LazyTensorStorage(max_size=200_000),
     )
 
     accelerator = Accelerator()
@@ -68,9 +80,6 @@ def training_loop(config: Configuration):
         if len(replay_buffer) >= config.train.min_replay_size:
             model = train(replay_buffer, model, optimizer, config.train.num_epochs)
             record_episode(config.env_name, episode)
-
-    # TODO implement training loop herefrom src.nn_architecture.network_config import load_config, Configuration
-
 
 if __name__ == "__main__":
     # Get config
