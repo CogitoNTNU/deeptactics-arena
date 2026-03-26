@@ -145,6 +145,7 @@ class MLPEncoder(nn.Module):  # f : obs -> input
         if output_shape <= 0:
             raise ValueError
 
+        self.leakyrelu = nn.LeakyReLU()
         self.input_layer = nn.Linear(input_shape, out_features=hidden_dim)
         self.hidden_layers = nn.ModuleList(
             [nn.Linear(hidden_dim, hidden_dim) for i in range(num_layers)]
@@ -152,13 +153,11 @@ class MLPEncoder(nn.Module):  # f : obs -> input
         self.output_layer = nn.Linear(hidden_dim, output_shape)
 
     def forward(self, observation: torch.Tensor) -> torch.Tensor:
-        leakyrelu = nn.LeakyReLU()
-
         x = self.input_layer(observation)
-        x = leakyrelu(x)
+        x = self.leakyrelu(x)
         for i, layer in enumerate(self.hidden_layers):
             x = layer(x)
-            x = leakyrelu(x)
+            x = self.leakyrelu(x)
         x = self.output_layer(x)
 
         return x
@@ -167,21 +166,21 @@ class MLPEncoder(nn.Module):  # f : obs -> input
 class ResidualBlock(nn.Module):
     def __init__(self, block_size: int, hidden_dim: int = 128):
         super().__init__()
+        self.leakyrelu = nn.LeakyReLU()
 
         self.layer1 = nn.Linear(block_size, hidden_dim)
         self.layer2 = nn.Linear(hidden_dim, block_size)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        leakyrelu = nn.LeakyReLU()
 
         activation = self.layer1(x)
-        activation = leakyrelu(activation)
+        activation = self.leakyrelu(activation)
 
         activation = self.layer2(activation)
-        activation = leakyrelu(activation)
+        activation = self.leakyrelu(activation)
 
         activation += x
-        activation = leakyrelu(activation)
+        activation = self.leakyrelu(activation)
 
         return activation
 
@@ -195,15 +194,17 @@ class NetworkHead(nn.Module):
 
         self.value_head = nn.Linear(input_shape, 1)
         self.policy_head = nn.Linear(input_shape, legal_actions)
+        self.tanh = nn.Tanh()
+        self.softmax = nn.Softmax(dim=-1)
+
+
 
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        tanh = nn.Tanh()
         value = self.value_head(x)
-        value = tanh(value)
+        value = self.tanh(value)
 
-        softmax = nn.Softmax(dim=-1)
         policy_logits = self.policy_head(x)
-        policy_logits = softmax(policy_logits)
+        policy_logits = self.softmax(policy_logits)
 
         # [B,A], [B,1]
         return policy_logits, value
