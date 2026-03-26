@@ -16,7 +16,7 @@
 
 - [DeepTactics Arena](#deeptactics-arena)
   - [Description](#description)
-  - [🛠️ Prerequisites](#%EF%B8%8F-prerequisites)
+  - [🛠️ Prerequisites](#️-prerequisites)
   - [Getting started](#getting-started)
   - [Usage](#usage)
     - [📖 Generate Documentation Site](#-generate-documentation-site)
@@ -75,13 +75,23 @@ For example: OS version, programs, libraries, etc.
 
 ## Usage
 
-To run the project, run the following command from the root directory of the project:
+Run training with the default configuration (`configs/config.yaml`):
 
 ```bash
-
+uv run python main.py
 ```
 
-<!-- TODO: Instructions on how to run the project and use its features. -->
+To use a specific config, pass it as a positional argument or with `--config`:
+
+```bash
+uv run python main.py connect_four.yaml
+uv run python main.py --config chess.yaml
+```
+
+Available configurations in `configs/`: `config.yaml`, `chess.yaml`, `connect_four.yaml`, `tic-tac-toe.yaml`. You can also create your own by using any of these as a template.
+
+Training progress is logged to [Weights & Biases](https://wandb.ai/) under the `deeptactics-arena` entity. To disable W&B logging, uncomment the `mode="disabled"` line in [main.py](main.py).
+
 
 ### 📖 Generate Documentation Site
 
