@@ -15,8 +15,10 @@ train:
   num_epochs: 10
   num_episodes: 200
   min_replay_size: 16
+  num_batches: 10
 mcts:
   cpuct: 10
   pi_temp: 1.5
+  epsilon: 0.25
 
 env_name: connect_four

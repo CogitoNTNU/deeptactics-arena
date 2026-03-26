@@ -54,7 +54,7 @@ def train_one_epoch(
 
         optimizer.zero_grad()
 
-        pred_policies, pred_values = model(observations)
+        pred_policies, pred_values = model.forward(observations)
 
         loss = loss_function(pred_policies, pred_values, policies, values)
         loss.backward()
