@@ -45,13 +45,13 @@ class MCTS():
             if action in node.children:
                 val = node.children[action].avg
 
-                val += self.c_puct * node.pred_pol[node.action] * node.num_visited**(0.5) / (1+node.children[action].num_visited)
+                val += self.c_puct * node.pred_pol.tolist()[action] * node.num_visited**(0.5) / (1+node.children[action].num_visited)
 
                 PUCT_vals.append(val)
             else:
-                PUCT_vals.append(0)
+                PUCT_vals.append(-1e15)
 
-        return torch.argmax(torch.asarray(PUCT_vals))
+        return torch.argmax(torch.asarray(PUCT_vals)).item()
     
     def policy(self, node: Node, action) -> float:
         """Calculate pi for given action"""
@@ -74,14 +74,8 @@ class MCTS():
         
         if len(node.children) != 0:
             #print(f"{node.action}: finn neste child {node.children.keys()}")
-            first_node = list(node.children.values())[0]
-            max_PUCT = self.PUCT(first_node)
-            best_node = first_node
-            for child in node.children:
-                puct = self.PUCT(node.children[child])
-                if puct > max_PUCT:
-                    max_PUCT = puct
-                    best_node = node.children[child]
+
+            best_node = node.children[self.PUCT(node)]
             
             self.traverse(best_node)
 
@@ -105,7 +99,7 @@ class MCTS():
                 self.traverse(node.children[legal[0]])
 
     def rollout(self, node: Node):
-        self.backpropogate(node, node.pred_val)
+        self.backpropogate(node, node.pred_val.item())
 
 
     def run_simulations(self, num_simulations):
@@ -115,7 +109,7 @@ class MCTS():
  
         a = torch.asarray([0 if x not in self.root.children else self.policy(self.root, x) for x in self.num_root_actions], dtype=torch.float32)
     
-        print("Ferdig")
+        #print("Ferdig")
 
         return a
         

@@ -28,13 +28,12 @@ def generate_training_data(
 
     while True:
         policy_values = monte_carlo.run_simulations(1000)
-        print(policy_values)
+        # print(policy_values)
         action = torch.multinomial(policy_values, num_samples=1).item()
 
         monte_carlo.root = monte_carlo.root.children[action]
         monte_carlo.root.parent = None
         monte_carlo.root.pred_pol = monte_carlo.dirichlet(monte_carlo.root.pred_pol, monte_carlo.config.mcts.epsilon)
-        print(monte_carlo.root.pred_pol)
 
         td = TensorDict(
             {
