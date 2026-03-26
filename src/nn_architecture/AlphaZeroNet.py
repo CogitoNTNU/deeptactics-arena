@@ -201,7 +201,7 @@ class NetworkHead(nn.Module):
         value = self.value_head(x)
         value = tanh(value)
 
-        softmax = nn.Softmax()
+        softmax = nn.Softmax(dim=-1)
         policy_logits = self.policy_head(x)
         policy_logits = softmax(policy_logits)
 
