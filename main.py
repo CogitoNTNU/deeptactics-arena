@@ -18,7 +18,7 @@ import wandb
 def generate_training_data(
     replay_buffer: ReplayBuffer, config: Configuration, model=None
 ) -> ReplayBuffer:
-    env = build_environment("tic_tac_toe")
+    env = build_environment(config.env_name)
     env.reset()
     observation, reward, terminated, truncated, info = env.last()
     monte_carlo = MCTS(env=env, config=config, model=model)
