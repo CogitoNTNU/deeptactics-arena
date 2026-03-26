@@ -24,7 +24,7 @@ def generate_training_data(
     env = build_environment("tic_tac_toe")
     env.reset()
     observation, reward, terminated, truncated, info = env.last()
-    monte_carlo = MCTS(env=env, config=config)
+    monte_carlo = MCTS(env=env, config=config, model=model)
 
     trajectories: list[TensorDict] = []
 
@@ -34,7 +34,7 @@ def generate_training_data(
 
         td = TensorDict(
             {
-                "observation": observation,
+                "observation": torch.tensor(observation["observation"].copy(), dtype=torch.float32),
                 "policies": policy_values,
             },
             batch_size=[],
