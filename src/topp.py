@@ -1,6 +1,7 @@
-from agent import Agent
-from nn_architecture.network_config import EnvironmentConfig
-from pettingzoo.utils.env import AECEnv, connect_four_v3, tictactoe_v3, chess_v6
+from src.agent import Agent
+from src.nn_architecture.environment_config import EnvironmentConfig
+from pettingzoo.utils.env import AECEnv
+from pettingzoo.classic import connect_four_v3, tictactoe_v3, chess_v6
 from itertools import permutations
 
 
