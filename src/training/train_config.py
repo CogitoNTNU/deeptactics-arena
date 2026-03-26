@@ -7,3 +7,4 @@ class TrainConfiguration(BaseModel):
     num_epochs: int
     num_episodes: int
     min_replay_size: int
+    num_batches: int

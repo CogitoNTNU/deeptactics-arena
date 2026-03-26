@@ -75,7 +75,7 @@ def training_loop(config: Configuration):
         replay_buffer = generate_training_data(replay_buffer, config, model)
 
         if len(replay_buffer) >= config.train.min_replay_size:
-            train(replay_buffer, model, optimizer, config.train.num_epochs)
+            train(replay_buffer, model, optimizer, config.train)
             record_episode(config.env_name, episode)
 
 if __name__ == "__main__":
