@@ -166,6 +166,12 @@ This project would not have been possible without the hard work and dedication o
               <sub><b>Jessica Liu</b></sub>
             </a>
         </td>
+        <td align="center">
+            <a href="https://github.com/flatval">
+              <img src="https://github.com/flatval.png?size=100" width="100px;" alt="Kristian Flatval"/><br />
+              <sub><b>Kristian Flatval</b></sub>
+            </a>
+        </td>
     </tr>
 </table>
 
