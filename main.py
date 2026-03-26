@@ -32,7 +32,9 @@ def generate_training_data(
 
         td = TensorDict(
             {
-                "observation": torch.tensor(observation["observation"].copy(), dtype=torch.float32),
+                "observation": torch.tensor(
+                    observation["observation"].copy(), dtype=torch.float32
+                ),
                 "policies": policy_values,
             },
             batch_size=[],
@@ -76,7 +78,7 @@ def training_loop(config: Configuration):
         replay_buffer = generate_training_data(replay_buffer, config, model)
 
         if len(replay_buffer) >= config.train.min_replay_size:
-            train(replay_buffer, model, optimizer, config.train.num_epochs)
+            train(replay_buffer, model, optimizer, config.train)
             record_episode(model, config.env_name, episode, device)
 
 

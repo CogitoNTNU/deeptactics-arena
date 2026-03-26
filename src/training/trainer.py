@@ -2,6 +2,7 @@ import torch
 from torchrl.data import ReplayBuffer
 import torch.nn as nn
 from tensordict import TensorDict
+from src.training.train_config import TrainConfiguration
 import wandb
 
 MODELS_PATH = "models"
@@ -11,13 +12,13 @@ def train(
     replay_buffer: ReplayBuffer,
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
-    epochs: int = 10,
+    config: TrainConfiguration,
 ):
     best_loss = float("inf")
-    for epoch in range(epochs):
+    for epoch in range(config.num_epochs):
         model.train(True)
 
-        avg_loss = train_one_epoch(replay_buffer, model, optimizer)
+        avg_loss = train_one_epoch(replay_buffer, model, optimizer, config.batch_size, config.num_batches)
 
         wandb.log({"epoch": epoch, "epoch/loss": avg_loss})
 
@@ -38,26 +39,32 @@ def train_one_epoch(
     replay_buffer: list[TensorDict],
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
-    sample_size: int = 16,
+    batch_size: int = 2048,
+    num_batches: int = 1000,
 ) -> float:
-    batch = replay_buffer.sample(sample_size)
-
     device = next(model.parameters()).device
-    observation = batch["observation"].to(device)
-    values = batch["value"].to(device)
-    policies = batch["policies"].to(device)
+    total_loss = 0.0
 
-    optimizer.zero_grad()
+    for _ in range(num_batches):
+        batch = replay_buffer.sample(batch_size)
 
-    pred_policies, pred_values = model.forward(observations)
+        observations = batch["observation"].to(device)
+        values = batch["value"].to(device)
+        policies = batch["policies"].to(device)
 
-    loss = loss_function(pred_policies, pred_values, policies, values)
-    loss.backward()
+        optimizer.zero_grad()
 
-    optimizer.step()
+        pred_policies, pred_values = model(observations)
 
-    wandb.log({"batch/loss": loss.item()})
-    return loss.item()
+        loss = loss_function(pred_policies, pred_values, policies, values)
+        loss.backward()
+
+        optimizer.step()
+
+        total_loss += loss.item()
+        wandb.log({"batch/loss": loss.item()})
+
+    return total_loss / num_batches
 
 
 def loss_function(
