@@ -3,7 +3,7 @@ import random
 import numpy as np
 import wandb
 
-from src.environment import build_environment
+from src.environments.environment import build_environment
 
 
 def record_episode(env_name: str, episode: int, fps: int = 4) -> None:
@@ -25,4 +25,9 @@ def record_episode(env_name: str, episode: int, fps: int = 4) -> None:
 
     if frames:
         video = np.stack(frames).transpose(0, 3, 1, 2)  # (T, H, W, C) -> (T, C, H, W)
-        wandb.log({"episode/game_video": wandb.Video(video, fps=fps, format="mp4"), "episode": episode})
+        wandb.log(
+            {
+                "episode/game_video": wandb.Video(video, fps=fps, format="mp4"),
+                "episode": episode,
+            }
+        )

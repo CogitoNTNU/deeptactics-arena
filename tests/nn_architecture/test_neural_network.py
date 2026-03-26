@@ -1,4 +1,4 @@
-from src.environment import build_environment
+from src.environments.environment import build_environment
 import torch
 import pytest
 
@@ -27,9 +27,9 @@ def test_mlp_encoder(num_layers, input_shape, output_shape):
 
     y = encoder.forward(x)
 
-    assert y.size(dim=0) == output_shape, (
-        f"Expected output {output_shape}, got {y.shape}"
-    )
+    assert (
+        y.size(dim=0) == output_shape
+    ), f"Expected output {output_shape}, got {y.shape}"
 
 
 def test_mlp_encoder_validation():
@@ -66,9 +66,9 @@ def test_cnn_encoder_for_all_games(env_name):
     x = torch.randn(*obs_shape)
     y = encoder.forward(x)
 
-    assert y.shape[-1] == output_shape, (
-        f"Expected output last dim {output_shape}, got {y.shape}"
-    )
+    assert (
+        y.shape[-1] == output_shape
+    ), f"Expected output last dim {output_shape}, got {y.shape}"
 
 
 @pytest.mark.parametrize(
@@ -105,9 +105,9 @@ def test_alpha_zero_net(config):
 
     policies, value = model.forward(x)
 
-    assert policies.shape[-1] == config.legal_actions, (
-        f"Expected output {config.legal_actions}, got {policies.shape}"
-    )
+    assert (
+        policies.shape[-1] == config.legal_actions
+    ), f"Expected output {config.legal_actions}, got {policies.shape}"
     assert value.shape[-1] == 1, f"Expected output {1}, got {value.shape}"
 
 
@@ -127,9 +127,10 @@ def test_batched_alpha_zero_net():
 
     policies, value = model.forward(batched_obs)
 
-    assert policies.shape == (batch_size, config.legal_actions), (
-        f"Expected output {config.legal_actions}, got {policies.shape}"
-    )
+    assert policies.shape == (
+        batch_size,
+        config.legal_actions,
+    ), f"Expected output {config.legal_actions}, got {policies.shape}"
     assert value.shape == (batch_size, 1), f"Expected output {1}, got {value.shape}"
 
 
@@ -170,12 +171,14 @@ def test_network_head():
 
     policy, value = network_head.forward(x)
 
-    assert value.min() >= -1 and value.max() <= 1, (
-        f"Expected value in -1 to 1, got {value}"
-    )
-    assert value.size() == (batch, 1), (
-        f"Expected value size {(batch, 1)}, got {value.size()}"
-    )
-    assert policy.size() == (batch, legal_actions), (
-        f"Expected policy size {(batch, legal_actions)}, got {policy.size()}"
-    )
+    assert (
+        value.min() >= -1 and value.max() <= 1
+    ), f"Expected value in -1 to 1, got {value}"
+    assert value.size() == (
+        batch,
+        1,
+    ), f"Expected value size {(batch, 1)}, got {value.size()}"
+    assert policy.size() == (
+        batch,
+        legal_actions,
+    ), f"Expected policy size {(batch, legal_actions)}, got {policy.size()}"

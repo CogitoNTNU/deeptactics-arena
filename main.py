@@ -10,7 +10,7 @@ from src.configuration import load_config
 from src.nn_architecture.AlphaZeroNet import AlphaZeroNet
 from src.utils.record import record_episode
 from pettingzoo.classic import tictactoe_v3
-from src.environment import build_environment
+from src.environments.environment import build_environment
 from tensordict import TensorDict
 import torch
 import wandb
@@ -20,8 +20,8 @@ from accelerate import Accelerator
 
 def generate_training_data(
     replay_buffer: ReplayBuffer, config: Configuration, model=None
-) -> ReplayBuffer: 
-    env = build_environment("tic_tac_toe")    
+) -> ReplayBuffer:
+    env = build_environment("tic_tac_toe")
     env.reset()
     observation, reward, terminated, truncated, info = env.last()
     monte_carlo = MCTS(env=env, config=config)
@@ -67,10 +67,13 @@ def training_loop(config: Configuration):
     accelerator = Accelerator()
     device = accelerator.device
 
-
     model = AlphaZeroNet(config.network)
 
-    optimizer = AdamW(model.parameters(), lr=config.train.learning_rate, weight_decay=config.weight_decay)
+    optimizer = AdamW(
+        model.parameters(),
+        lr=config.train.learning_rate,
+        weight_decay=config.weight_decay,
+    )
 
     model, optimizer = accelerator.prepare(model, optimizer)
 
@@ -90,7 +93,7 @@ if __name__ == "__main__":
         entity="deeptactics-arena",
         project="AlphaZero deeptactics",
         config=config.model_dump(),
-        mode="disabled", # disabled offline online
+        mode="disabled",  # disabled offline online
         monitor_gym=True,
     )
 
