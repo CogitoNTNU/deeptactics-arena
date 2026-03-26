@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 from torchrl.data import ReplayBuffer, PrioritizedReplayBuffer
 from torchrl.data import LazyTensorStorage
 from torch.optim import AdamW
@@ -81,14 +82,29 @@ def training_loop(config: Configuration):
 
 if __name__ == "__main__":
     # Get config
-    config = load_config("config.yaml")
-
+    parser = ArgumentParser()
+    config_name = "config.yaml"
+    parser.add_argument(
+        "config",
+        nargs="?",
+        default=None,
+        help=f"Config file to load (e.g. {config_name})",
+    )
+    parser.add_argument(
+        "--config",
+        dest="config_flag",
+        default=None,
+        help=f"Config file to load (e.g. {config_name})",
+    )
+    args = parser.parse_args()
+    config_name = args.config_flag or args.config or config_name
+    config = load_config(config_name)
     # Initialize wandb
     run = wandb.init(
         entity="deeptactics-arena",
         project="AlphaZero deeptactics",
         config=config.model_dump(),
-        mode="disabled",  # disabled offline online
+        # mode="disabled",  # disabled offline online
         monitor_gym=True,
     )
 
