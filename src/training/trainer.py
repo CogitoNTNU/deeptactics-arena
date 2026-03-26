@@ -4,8 +4,6 @@ import torch.nn as nn
 from tensordict import TensorDict
 import wandb
 
-from accelerate import Accelerator
-
 MODELS_PATH = "models"
 
 
@@ -13,15 +11,13 @@ def train(
     replay_buffer: ReplayBuffer,
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
-    accelerator: Accelerator,
     epochs: int = 10,
-    
 ):
     best_loss = float("inf")
     for epoch in range(epochs):
         model.train(True)
 
-        avg_loss = train_one_epoch(replay_buffer, model, optimizer, accelerator)
+        avg_loss = train_one_epoch(replay_buffer, model, optimizer)
 
         wandb.log({"epoch": epoch, "epoch/loss": avg_loss})
 
@@ -38,14 +34,10 @@ def train(
             artifact.add_file(model_name)
             wandb.log_artifact(artifact)
 
-    return model
-
-
 def train_one_epoch(
     replay_buffer: list[TensorDict],
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
-    accelerator: Accelerator,
     sample_size: int = 16,
 ) -> float:
     batch = replay_buffer.sample(sample_size)

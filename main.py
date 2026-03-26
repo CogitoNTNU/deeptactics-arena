@@ -9,13 +9,10 @@ from src.training.trainer import train
 from src.configuration import load_config
 from src.nn_architecture.AlphaZeroNet import AlphaZeroNet
 from src.utils.record import record_episode
-from pettingzoo.classic import tictactoe_v3
 from src.environments.environment import build_environment
 from tensordict import TensorDict
 import torch
 import wandb
-
-from accelerate import Accelerator
 
 
 def generate_training_data(
@@ -64,10 +61,9 @@ def training_loop(config: Configuration):
         storage=LazyTensorStorage(max_size=200_000),
     )
 
-    accelerator = Accelerator()
-    device = accelerator.device
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = AlphaZeroNet(config.network)
+    model = AlphaZeroNet(config.network).to(device)
 
     optimizer = AdamW(
         model.parameters(),
@@ -75,13 +71,11 @@ def training_loop(config: Configuration):
         weight_decay=config.weight_decay,
     )
 
-    model, optimizer = accelerator.prepare(model, optimizer)
-
     for episode in range(config.train.num_episodes):
         replay_buffer = generate_training_data(replay_buffer, config, model)
 
         if len(replay_buffer) >= config.train.min_replay_size:
-            model = train(replay_buffer, model, optimizer, config.train.num_epochs)
+            train(replay_buffer, model, optimizer, config.train.num_epochs)
             record_episode(config.env_name, episode)
 
 if __name__ == "__main__":
