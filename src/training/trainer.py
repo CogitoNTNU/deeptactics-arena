@@ -42,9 +42,10 @@ def train_one_epoch(
 ) -> float:
     batch = replay_buffer.sample(sample_size)
 
-    observations = batch["observation"]
-    values = batch["value"]
-    policies = batch["policies"]
+    device = next(model.parameters()).device
+    observation = batch["observation"].to(device)
+    values = batch["value"].to(device)
+    policies = batch["policies"].to(device)
 
     optimizer.zero_grad()
 
