@@ -260,3 +260,4 @@ slurm_outputs/
 .vscode/
 
 wandb/
+models/
