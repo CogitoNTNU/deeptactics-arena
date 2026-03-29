@@ -38,12 +38,17 @@ def record_episode(
 
     env.close()
 
+    final_reward = env.rewards.get(env.agents[0], 0) if env.agents else 0
+    game_length = len(frames)
+
     if frames:
         video = np.stack(frames).transpose(0, 3, 1, 2)  # (T, H, W, C) -> (T, C, H, W)
         print(f"Logging episode {episode} video with {len(frames)} frames.")
         wandb.log(
             {
                 "episode/game_video": wandb.Video(video, fps=fps, format="mp4"),
+                "episode/final_reward": final_reward,
+                "episode/game_length": game_length,
                 "episode": episode,
             }
         )

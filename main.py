@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from torchrl.data import ReplayBuffer, PrioritizedReplayBuffer
+from torchrl.data import ReplayBuffer
 from torchrl.data import LazyTensorStorage
 from torch.optim import AdamW
 
@@ -33,7 +33,9 @@ def generate_training_data(
 
         monte_carlo.root = monte_carlo.root.children[action]
         monte_carlo.root.parent = None
-        monte_carlo.root.pred_pol = monte_carlo.dirichlet(monte_carlo.root.pred_pol, monte_carlo.config.mcts.epsilon)
+        monte_carlo.root.pred_pol = monte_carlo.dirichlet(
+            monte_carlo.root.pred_pol, monte_carlo.config.mcts.epsilon
+        )
 
         td = TensorDict(
             {
@@ -63,9 +65,7 @@ def generate_training_data(
 
 
 def training_loop(config: Configuration):
-    replay_buffer: ReplayBuffer = PrioritizedReplayBuffer(
-        alpha=0.7,
-        beta=0.9,
+    replay_buffer: ReplayBuffer = ReplayBuffer(
         storage=LazyTensorStorage(max_size=200_000),
     )
 
@@ -80,7 +80,11 @@ def training_loop(config: Configuration):
     )
 
     for episode in range(config.train.num_episodes):
+        prev_size = len(replay_buffer)
         replay_buffer = generate_training_data(replay_buffer, config, model)
+        game_length = len(replay_buffer) - prev_size
+
+        wandb.log({"episode": episode, "episode/game_length": game_length, "replay_buffer/size": len(replay_buffer)})
 
         if len(replay_buffer) >= config.train.min_replay_size:
             train(replay_buffer, model, optimizer, config.train)
