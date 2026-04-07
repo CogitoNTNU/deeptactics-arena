@@ -3,12 +3,12 @@ network:
   input_shape: [3, 3, 2]
   hidden_shape: 128
   legal_actions: 9
-  num_layers: 4
+  num_layers: 1
   stem:
     num_residual_blocks: 1
     block_size: 128
   head:
-    hidden_blocks: 4
+    hidden_blocks: 1
 train:
   learning_rate: 0.001
   batch_size: 32
