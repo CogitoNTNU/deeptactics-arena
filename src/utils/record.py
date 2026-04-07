@@ -28,7 +28,7 @@ def record_episode(
             policy, _ = model(obs_tensor)
         action_mask = torch.tensor(obs["action_mask"], dtype=torch.bool).to(device)
 
-        policy[~action_mask] = -float("inf")
+        policy[~action_mask] = 0
         action = torch.argmax(policy).item()
         env.step(action)
 
