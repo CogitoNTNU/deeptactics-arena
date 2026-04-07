@@ -52,12 +52,13 @@ def train_one_epoch(
         batch = replay_buffer.sample(batch_size)
 
         observations = batch["observation"].to(device)
+        action_masks = batch["action_mask"].to(device)
         values = batch["value"].to(device)
         policies = batch["policies"].to(device)
 
         optimizer.zero_grad()
 
-        pred_policies, pred_values = model.forward(observations)
+        pred_policies, pred_values = model.forward(observations, action_mask=action_masks)
 
         loss = loss_function(pred_policies, pred_values, policies, values)
         loss.backward()

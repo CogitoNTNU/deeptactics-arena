@@ -42,6 +42,9 @@ def generate_training_data(
                 "observation": torch.tensor(
                     observation["observation"].copy(), dtype=torch.float32
                 ),
+                "action_mask": torch.tensor(
+                    observation["action_mask"].copy(), dtype=torch.bool
+                ),
                 "policies": policy_values,
             },
             batch_size=[],
@@ -56,9 +59,12 @@ def generate_training_data(
             monte_carlo.config.mcts.epsilon,
         )
 
+        current_agent = env.agent_selection
         env.step(action)
-        _, reward, terminated, truncated, _ = env.last()
+        _, _, terminated, truncated, _ = env.last()
         if terminated or truncated:
+            # reward from the perspective of the agent who made the last move
+            reward = env.rewards[current_agent]
             break
 
     outcome = reward

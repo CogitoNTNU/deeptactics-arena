@@ -19,7 +19,6 @@ class MCTS:
         self.inv_temp = 1 / self.pi_temp
 
         self.env = env
-        self.env.reset()
 
         self.network = model
 
@@ -48,7 +47,7 @@ class MCTS:
         puct_vals = []
         for action in actions:
             child = node.children[action]
-            Q = child.avg
+            Q = -child.avg
             U = (
                 self.c_puct
                 * float(node.pred_pol[action])
@@ -100,9 +99,7 @@ class MCTS:
                 return
 
             else:
-                legal = node.env.legal_moves()
-
-                if (len(legal) == 0) or node.truncated or node.terminated:
+                if node.terminated or node.truncated or len(node.legal_actions) == 0:
                     self.backpropogate(node, node.reward)
                     return
 

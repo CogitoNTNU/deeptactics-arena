@@ -24,11 +24,9 @@ def record_episode(
 
         obs = env.observe(env.agent_selection)
         obs_tensor = torch.tensor(obs["observation"], dtype=torch.float32).to(device)
-        with torch.no_grad():
-            policy, _ = model(obs_tensor)
         action_mask = torch.tensor(obs["action_mask"], dtype=torch.bool).to(device)
-
-        policy[~action_mask] = 0
+        with torch.no_grad():
+            policy, _ = model(obs_tensor, action_mask=action_mask)
         action = torch.argmax(policy).item()
         env.step(action)
 
