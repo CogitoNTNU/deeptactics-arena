@@ -9,7 +9,9 @@ from gymnasium import Env
 
 
 class MCTS:
-    def __init__(self, env: Env, config: Configuration, model, device: str = "cpu"):
+    def __init__(
+        self, env: Env, config: Configuration, model, device: torch.device = "cpu"
+    ):
         self.config = config
         self.device = device
         self.c_puct = self.config.mcts.cpuct
@@ -77,8 +79,10 @@ class MCTS:
             (len(legal_actions),), alpha, dtype=prior.dtype, device=prior.device
         )
 
-        if self.device == "mps":
-            noise = torch.distributions.Dirichlet(conc.to("cpu")).sample()
+        if self.device.type == "mps":
+            noise = (
+                torch.distributions.Dirichlet(conc.to("cpu")).sample().to(self.device)
+            )
         else:
             noise = torch.distributions.Dirichlet(conc).sample()
         # på bare legal actions
