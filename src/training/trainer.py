@@ -18,7 +18,9 @@ def train(
     for epoch in range(config.num_epochs):
         model.train(True)
 
-        avg_loss = train_one_epoch(replay_buffer, model, optimizer, config.batch_size, config.num_batches)
+        avg_loss = train_one_epoch(
+            replay_buffer, model, optimizer, config.batch_size, config.num_batches
+        )
 
         wandb.log({"epoch": epoch, "epoch/loss": avg_loss})
 
@@ -34,6 +36,7 @@ def train(
             artifact = wandb.Artifact("deeptactics_arena", type="model")
             artifact.add_file(model_name)
             wandb.log_artifact(artifact)
+
 
 def train_one_epoch(
     replay_buffer: list[TensorDict],
@@ -74,6 +77,8 @@ def loss_function(
     values: torch.Tensor,
     MSE_coeff: float = 1,
 ) -> float:
-    mse = nn.functional.mse_loss(pred_values, values)
-    cross_entropy = -torch.sum(policies * torch.log(pred_policies + 1e-8), dim=-1).mean()
+    mse = nn.functional.mse_loss(pred_values, values.unsqueeze(-1))
+    cross_entropy = -torch.sum(
+        policies * torch.log(pred_policies + 1e-8), dim=-1
+    ).mean()
     return cross_entropy + MSE_coeff * mse

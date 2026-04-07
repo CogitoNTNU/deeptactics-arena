@@ -16,13 +16,20 @@ import torch
 import wandb
 
 
+device = torch.device(
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps" if torch.backends.mps.is_available() else "cpu"
+)
+
+
 def generate_training_data(
     replay_buffer: ReplayBuffer, config: Configuration, model=None
 ) -> ReplayBuffer:
     env = build_environment(config.env_name)
     env.reset()
     observation, reward, terminated, truncated, info = env.last()
-    monte_carlo = MCTS(env=env, config=config, model=model)
+    monte_carlo = MCTS(env=env, config=config, model=model, device=device)
 
     trajectories: list[TensorDict] = []
 
@@ -33,7 +40,11 @@ def generate_training_data(
 
         monte_carlo.root = monte_carlo.root.children[action]
         monte_carlo.root.parent = None
-        monte_carlo.root.pred_pol = monte_carlo.dirichlet(monte_carlo.root.pred_pol, monte_carlo.config.mcts.epsilon)
+        monte_carlo.root.pred_pol = monte_carlo.dirichlet(
+            monte_carlo.root.pred_pol,
+            monte_carlo.root.legal_actions,
+            monte_carlo.config.mcts.epsilon,
+        )
 
         td = TensorDict(
             {
@@ -69,8 +80,6 @@ def training_loop(config: Configuration):
         storage=LazyTensorStorage(max_size=200_000),
     )
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     model = AlphaZeroNet(config.network).to(device)
 
     optimizer = AdamW(
@@ -80,7 +89,17 @@ def training_loop(config: Configuration):
     )
 
     for episode in range(config.train.num_episodes):
+        prev_size = len(replay_buffer)
         replay_buffer = generate_training_data(replay_buffer, config, model)
+        game_length = len(replay_buffer) - prev_size
+
+        wandb.log(
+            {
+                "episode": episode,
+                "episode/game_length": game_length,
+                "replay_buffer/size": len(replay_buffer),
+            }
+        )
 
         if len(replay_buffer) >= config.train.min_replay_size:
             train(replay_buffer, model, optimizer, config.train)
