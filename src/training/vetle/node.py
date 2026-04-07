@@ -20,7 +20,7 @@ class Node:
         )
 
         self.parent: Node = None
-        self.children: dict[str, Node] = {}
+        self.children: dict[int, Node] = {}
 
         self.value: float = 0
         self.num_visited: int = 0

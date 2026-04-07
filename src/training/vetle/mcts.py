@@ -23,12 +23,10 @@ class MCTS:
 
         self.network = model
 
-        self.root = Node(self.network, env, device=device)
-        self.root.pred_pol = self.dirichlet(
-            self.root.pred_pol,
-            legal_actions=self.root.legal_actions,
-            epsilon=self.config.mcts.epsilon,
-        )
+        self.root = Node(self.network, env)
+        self.root.pred_pol = self.dirichlet(self.root.pred_pol,
+                                            self.root.legal_actions,
+                                            self.config.mcts.epsilon)
         self.num_root_actions = self.env.legal_moves()
 
     def backpropogate(self, node: Node, value: float) -> None:
@@ -46,23 +44,17 @@ class MCTS:
 
     def PUCT(self, node: Node) -> float:
         """Calculate PUCT for a node and state"""
-        PUCT_vals = []
-        for action in self.num_root_actions:
-            if action in node.children:
-                val = node.children[action].avg
+        actions = list(node.children.keys())
+        puct_vals = []
+        for action in actions:
+            child = node.children[action]
+            Q = child.avg
+            U = self.c_puct * float(node.pred_pol[action]) * (node.num_visited ** 0.5) / (1 + child.num_visited)
+            puct_vals.append(Q+U)
 
-                val += (
-                    self.c_puct
-                    * node.pred_pol.tolist()[action]
-                    * node.num_visited ** (0.5)
-                    / (1 + node.children[action].num_visited)
-                )
-
-                PUCT_vals.append(val)
-            else:
-                PUCT_vals.append(-1e15)
-
-        return torch.argmax(torch.asarray(PUCT_vals)).item()
+        best_idx = int(torch.argmax(torch.tensor(puct_vals)))
+        return actions[best_idx]
+    
 
     def policy(self, node: Node, action) -> float:
         """Calculate pi for given action"""
@@ -120,7 +112,8 @@ class MCTS:
             else:
                 # print(f"{node.action}: Besøkt før: finn mulige actions og gjør en: Legg til barn")
                 node.add_children(self.network)
-                self.traverse(node.children[legal[0]])
+                best_action = self.PUCT(node)
+                self.traverse(node.children[best_action])
 
     def rollout(self, node: Node):
         self.backpropogate(node, node.pred_val.item())
