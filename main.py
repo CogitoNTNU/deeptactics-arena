@@ -9,7 +9,7 @@ from src.configuration import Configuration
 from src.training.trainer import train
 from src.configuration import load_config
 from src.nn_architecture.AlphaZeroNet import AlphaZeroNet
-from src.utils.record import record_episode
+from src.utils.record import record_episode, evaluate_vs_random
 from src.environments.environment import build_environment
 from tensordict import TensorDict
 import torch
@@ -25,16 +25,21 @@ device = torch.device(
 
 def generate_training_data(
     replay_buffer: ReplayBuffer, config: Configuration, model=None
-) -> ReplayBuffer:
+) -> tuple[ReplayBuffer, dict]:
     env = build_environment(config.env_name)
     env.reset()
     monte_carlo = MCTS(env=env, config=config, model=model, device=device)
 
     trajectories: list[TensorDict] = []
+    mcts_entropies: list[float] = []
 
     while True:
         observation = monte_carlo.root.obs
         policy_values = monte_carlo.run_simulations(1000)
+
+        entropy = -(policy_values * (policy_values + 1e-8).log()).sum().item()
+        mcts_entropies.append(entropy)
+
         action = torch.multinomial(policy_values, num_samples=1).item()
 
         td = TensorDict(
@@ -75,7 +80,12 @@ def generate_training_data(
     for td in trajectories:
         replay_buffer.add(td)
 
-    return replay_buffer
+    stats = {
+        "game_length": len(trajectories),
+        "outcome": reward,
+        "mcts_policy_entropy": sum(mcts_entropies) / len(mcts_entropies),
+    }
+    return replay_buffer, stats
 
 
 def training_loop(config: Configuration):
@@ -94,21 +104,23 @@ def training_loop(config: Configuration):
     )
 
     for episode in range(config.train.num_episodes):
-        prev_size = len(replay_buffer)
-        replay_buffer = generate_training_data(replay_buffer, config, model)
-        game_length = len(replay_buffer) - prev_size
+        replay_buffer, game_stats = generate_training_data(replay_buffer, config, model)
 
         wandb.log(
             {
                 "episode": episode,
-                "episode/game_length": game_length,
+                "episode/game_length": game_stats["game_length"],
                 "replay_buffer/size": len(replay_buffer),
+                "self_play/outcome": game_stats["outcome"],
+                "self_play/mcts_policy_entropy": game_stats["mcts_policy_entropy"],
             }
         )
 
         if len(replay_buffer) >= config.train.min_replay_size:
             train(replay_buffer, model, optimizer, config.train)
             record_episode(model, config.env_name, episode, device)
+            eval_metrics = evaluate_vs_random(model, config.env_name, device)
+            wandb.log({"episode": episode, **eval_metrics})
 
 
 if __name__ == "__main__":
