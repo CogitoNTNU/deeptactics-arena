@@ -16,7 +16,7 @@ class Node():
         self.pred_pol, self.pred_val = model.forward(torch.tensor(self.obs["observation"], dtype=torch.float32))
 
         self.parent: Node = None
-        self.children: dict[str, Node] = {}
+        self.children: dict[int, Node] = {}
 
         self.value: float = 0
         self.num_visited: int = 0
