@@ -41,7 +41,9 @@ def generate_training_data(
         monte_carlo.root = monte_carlo.root.children[action]
         monte_carlo.root.parent = None
         monte_carlo.root.pred_pol = monte_carlo.dirichlet(
-            monte_carlo.root.pred_pol, monte_carlo.config.mcts.epsilon
+            monte_carlo.root.pred_pol,
+            monte_carlo.root.legal_actions,
+            monte_carlo.config.mcts.epsilon,
         )
 
         td = TensorDict(
