@@ -61,12 +61,23 @@ class MCTS():
         return val
     
 
-    def dirichlet(self, pred_pol, epsilon):
+    def dirichlet(self, pred_pol, legal_actions, epsilon, alpha = 0.3):
+        prior = pred_pol.clone()
+        conc = torch.full(
+            (len(legal_actions),),alpha,
+            dtype = prior.dtype,
+            device = prior.device
+        )
         
-        eta = torch.randn_like(pred_pol)
-        prior_prime = (1 - epsilon)*pred_pol + epsilon*eta
+        noise = torch.distributions.Dirichlet(conc).sample()
+        #på bare legal actions
+        prior[legal_actions] = (1-epsilon) * prior[legal_actions] + epsilon * noise
 
-        return prior_prime
+        #normaliserer
+        prior = prior.clamp_min(0)
+        prior = prior / prior.sum()
+
+        return prior
 
     
 
