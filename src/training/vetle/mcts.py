@@ -91,50 +91,36 @@ class MCTS:
         return prior
 
     def traverse(self, node: Node):
+        while True:
+            if len(node.children) != 0:
+                node = node.children[self.PUCT(node)]
 
-        if len(node.children) != 0:
-            # print(f"{node.action}: finn neste child {node.children.keys()}")
-
-            best_node = node.children[self.PUCT(node)]
-
-            self.traverse(best_node)
-
-        elif node.num_visited == 0:
-            # print(f"{node.action}: Ikke besøkt før, gjør rollout")
-            self.rollout(node)
-        else:
-
-            # mask = node.obs["action_mask"]
-            # legal = [node.env.legal_moves()[i] for i in range(len(node.env.legal_moves())) if mask[i]]
-            # print(legal, node.terminated, node.truncated)
-            legal = node.env.legal_moves()
-
-            if (len(legal) == 0) or node.truncated or node.terminated:
-                # print(f"{node.action}: Besøkt før: finn mulige actions og gjør en: spillet slutt")
-                self.backpropogate(node, node.reward)
+            elif node.num_visited == 0:
+                self.rollout(node)
+                return
 
             else:
-                # print(f"{node.action}: Besøkt før: finn mulige actions og gjør en: Legg til barn")
-                node.add_children(self.network)
-                best_action = self.PUCT(node)
-                self.traverse(node.children[best_action])
+                legal = node.env.legal_moves()
+
+                if (len(legal) == 0) or node.truncated or node.terminated:
+                    self.backpropogate(node, node.reward)
+                    return
+
+                else:
+                    node.add_children(self.network)
+                    best_action = self.PUCT(node)
+                    node = node.children[best_action]
 
     def rollout(self, node: Node):
         self.backpropogate(node, node.pred_val.item())
 
     def run_simulations(self, num_simulations):
         for i in range(num_simulations):
-            # print(f"{i}----------------------------")
             self.traverse(self.root)
 
-        a = torch.asarray(
-            [
-                0 if x not in self.root.children else self.policy(self.root, x)
-                for x in self.num_root_actions
-            ],
-            dtype=torch.float32,
-        )
-
-        # print("Ferdig")
+        num_actions = len(self.root.pred_pol)
+        a = torch.zeros(num_actions, dtype=torch.float32)
+        for action in self.root.children:
+            a[action] = self.policy(self.root, action)
 
         return a
