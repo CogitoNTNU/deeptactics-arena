@@ -23,10 +23,10 @@ class MCTS:
 
         self.network = model
 
-        self.root = Node(self.network, env)
-        self.root.pred_pol = self.dirichlet(self.root.pred_pol,
-                                            self.root.legal_actions,
-                                            self.config.mcts.epsilon)
+        self.root = Node(self.network, env, device=self.device)
+        self.root.pred_pol = self.dirichlet(
+            self.root.pred_pol, self.root.legal_actions, self.config.mcts.epsilon
+        )
         self.num_root_actions = self.env.legal_moves()
 
     def backpropogate(self, node: Node, value: float) -> None:
@@ -49,12 +49,16 @@ class MCTS:
         for action in actions:
             child = node.children[action]
             Q = child.avg
-            U = self.c_puct * float(node.pred_pol[action]) * (node.num_visited ** 0.5) / (1 + child.num_visited)
-            puct_vals.append(Q+U)
+            U = (
+                self.c_puct
+                * float(node.pred_pol[action])
+                * (node.num_visited**0.5)
+                / (1 + child.num_visited)
+            )
+            puct_vals.append(Q + U)
 
         best_idx = int(torch.argmax(torch.tensor(puct_vals)))
         return actions[best_idx]
-    
 
     def policy(self, node: Node, action) -> float:
         """Calculate pi for given action"""
