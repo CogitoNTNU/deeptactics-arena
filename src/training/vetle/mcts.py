@@ -11,7 +11,7 @@ from gymnasium import Env
 class MCTS:
     def __init__(self, env: Env, config: Configuration, model, device: str = "cpu"):
         self.config = config
-
+        self.device = device
         self.c_puct = self.config.mcts.cpuct
         self.pi_temp = self.config.mcts.pi_temp
         self.inv_temp = 1 / self.pi_temp
@@ -77,7 +77,10 @@ class MCTS:
             (len(legal_actions),), alpha, dtype=prior.dtype, device=prior.device
         )
 
-        noise = torch.distributions.Dirichlet(conc).sample()
+        if self.device == "mps":
+            noise = torch.distributions.Dirichlet(conc.to("cpu")).sample()
+        else:
+            noise = torch.distributions.Dirichlet(conc).sample()
         # på bare legal actions
         prior[legal_actions] = (1 - epsilon) * prior[legal_actions] + epsilon * noise
 

@@ -16,13 +16,20 @@ import torch
 import wandb
 
 
+device = torch.device(
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps" if torch.backends.mps.is_available() else "cpu"
+)
+
+
 def generate_training_data(
     replay_buffer: ReplayBuffer, config: Configuration, model=None
 ) -> ReplayBuffer:
     env = build_environment(config.env_name)
     env.reset()
     observation, reward, terminated, truncated, info = env.last()
-    monte_carlo = MCTS(env=env, config=config, model=model)
+    monte_carlo = MCTS(env=env, config=config, model=model, device=device)
 
     trajectories: list[TensorDict] = []
 
@@ -70,8 +77,6 @@ def training_loop(config: Configuration):
         beta=0.9,
         storage=LazyTensorStorage(max_size=200_000),
     )
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = AlphaZeroNet(config.network).to(device)
 
