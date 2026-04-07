@@ -28,23 +28,14 @@ def generate_training_data(
 ) -> ReplayBuffer:
     env = build_environment(config.env_name)
     env.reset()
-    observation, reward, terminated, truncated, info = env.last()
     monte_carlo = MCTS(env=env, config=config, model=model, device=device)
 
     trajectories: list[TensorDict] = []
 
     while True:
+        observation = monte_carlo.root.obs
         policy_values = monte_carlo.run_simulations(1000)
-        # print(policy_values)
         action = torch.multinomial(policy_values, num_samples=1).item()
-
-        monte_carlo.root = monte_carlo.root.children[action]
-        monte_carlo.root.parent = None
-        monte_carlo.root.pred_pol = monte_carlo.dirichlet(
-            monte_carlo.root.pred_pol,
-            monte_carlo.root.legal_actions,
-            monte_carlo.config.mcts.epsilon,
-        )
 
         td = TensorDict(
             {
@@ -57,8 +48,16 @@ def generate_training_data(
         )
         trajectories.append(td)
 
+        monte_carlo.root = monte_carlo.root.children[action]
+        monte_carlo.root.parent = None
+        monte_carlo.root.pred_pol = monte_carlo.dirichlet(
+            monte_carlo.root.pred_pol,
+            monte_carlo.root.legal_actions,
+            monte_carlo.config.mcts.epsilon,
+        )
+
         env.step(action)
-        observation, reward, terminated, truncated, info = env.last()
+        _, reward, terminated, truncated, _ = env.last()
         if terminated or truncated:
             break
 
