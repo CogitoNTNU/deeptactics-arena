@@ -10,10 +10,7 @@ class Node:
         self.env = env.clone()
         if action is not None:
             self.env.step(self.action)
-            self.obs, self.reward, self.terminated, self.truncated, _ = self.env.last()
-        else:
-            self.env.reset()
-            self.obs, self.reward, self.terminated, self.truncated, _ = self.env.last()
+        self.obs, self.reward, self.terminated, self.truncated, _ = self.env.last()
 
         self.pred_pol, self.pred_val = model.forward(
             torch.tensor(self.obs["observation"], dtype=torch.float32).to(self.device)
