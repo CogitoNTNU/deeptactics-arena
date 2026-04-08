@@ -76,12 +76,11 @@ def train_one_epoch(
             observations, action_mask=action_masks
         )
 
-        policy_loss, value_loss, loss = loss_function(
+        policy_loss, value_loss, loss, per_batch_loss = loss_function(
             pred_policies, pred_values, policies, values
         )
 
-        td_error = (values.unsqueeze(-1) - pred_values).abs().detach().cpu()
-        batch.set("td_error", td_error)
+        batch.set("td_error", per_batch_loss.abs().detach().cpu())
         replay_buffer.update_tensordict_priority(batch)
 
         loss.backward()
@@ -140,9 +139,20 @@ def loss_function(
     policies: torch.Tensor,
     values: torch.Tensor,
     MSE_coeff: float = 1,
-) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    mse = nn.functional.mse_loss(pred_values, values.unsqueeze(-1))
-    cross_entropy = -torch.sum(
-        policies * torch.log(pred_policies + 1e-8), dim=-1
-    ).mean()
-    return cross_entropy, mse, cross_entropy + MSE_coeff * mse
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Returns (cross_entropy, mse, total, total_per_sample).
+
+    The first three are reduced scalars; total_per_sample has shape (batch,)
+    for use with Prioritized Experience Replay priority updates.
+    """
+    mse_per_sample = nn.functional.mse_loss(
+        pred_values, values.unsqueeze(-1), reduction="none"
+    ).squeeze(-1)
+    ce_per_sample = -torch.sum(policies * torch.log(pred_policies + 1e-8), dim=-1)
+    total_per_sample = ce_per_sample + MSE_coeff * mse_per_sample
+    return (
+        ce_per_sample.mean(),
+        mse_per_sample.mean(),
+        total_per_sample.mean(),
+        total_per_sample,
+    )
