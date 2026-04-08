@@ -4,13 +4,16 @@ from src.training.vetle.node import Node
 from src.nn_architecture.AlphaZeroNet import AlphaZeroNet
 
 from src.configuration import Configuration
-from copy import deepcopy
 from gymnasium import Env
 
 
 class MCTS:
     def __init__(
-        self, env: Env, config: Configuration, model, device: torch.device = "cpu"
+        self,
+        env: Env,
+        config: Configuration,
+        model: AlphaZeroNet,
+        device: torch.device | str = "cpu",
     ):
         self.config = config
         self.device = device
@@ -41,7 +44,7 @@ class MCTS:
         node.num_visited += 1
         node.avg = node.value / node.num_visited
 
-    def PUCT(self, node: Node) -> float:
+    def PUCT(self, node: Node) -> int:
         """Calculate PUCT for a node and state"""
         actions = list(node.children.keys())
         puct_vals = []
@@ -91,22 +94,18 @@ class MCTS:
 
     def traverse(self, node: Node):
         while True:
-            if len(node.children) != 0:
-                node = node.children[self.PUCT(node)]
+            if node.terminated or node.truncated or len(node.legal_actions) == 0:
+                self.backpropogate(node, node.reward)
+                return
 
-            elif node.num_visited == 0:
+            if node.num_visited == 0:
                 self.rollout(node)
                 return
 
-            else:
-                if node.terminated or node.truncated or len(node.legal_actions) == 0:
-                    self.backpropogate(node, node.reward)
-                    return
+            if len(node.children) == 0:
+                node.add_children(self.network)
 
-                else:
-                    node.add_children(self.network)
-                    best_action = self.PUCT(node)
-                    node = node.children[best_action]
+            node = node.children[self.PUCT(node)]
 
     def rollout(self, node: Node):
         self.backpropogate(node, node.pred_val.item())
