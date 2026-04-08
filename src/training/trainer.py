@@ -1,7 +1,6 @@
 import torch
 from torchrl.data import ReplayBuffer
 import torch.nn as nn
-from tensordict import TensorDict
 from src.training.train_config import TrainConfiguration
 import wandb
 
@@ -48,7 +47,7 @@ def train(
 
 
 def train_one_epoch(
-    replay_buffer: list[TensorDict],
+    replay_buffer: ReplayBuffer,
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
     batch_size: int = 2048,

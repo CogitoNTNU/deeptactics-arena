@@ -19,7 +19,9 @@ import wandb
 device = torch.device(
     "cuda"
     if torch.cuda.is_available()
-    else "mps" if torch.backends.mps.is_available() else "cpu"
+    else "mps"
+    if torch.backends.mps.is_available()
+    else "cpu"
 )
 
 
@@ -92,7 +94,7 @@ def training_loop(config: Configuration):
     replay_buffer: ReplayBuffer = PrioritizedReplayBuffer(
         alpha=0.7,
         beta=0.9,
-        storage=LazyTensorStorage(max_size=200_000),
+        storage=LazyTensorStorage(max_size=config.train.max_replay_size),
         batch_size=config.train.batch_size,
     )
 
