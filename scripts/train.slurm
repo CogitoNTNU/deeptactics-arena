@@ -6,6 +6,7 @@
 #SBATCH --mem=40GB
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
+#SBATCH --cpus-per-task=15
 #SBATCH --constraint="(v100|a100|h100|h200)"
 #SBATCH --output=slurm_outputs/output_deeptactics.txt
 #SBATCH --error=slurm_outputs/output_deeptactics.err
