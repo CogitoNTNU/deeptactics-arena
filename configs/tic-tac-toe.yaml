@@ -15,6 +15,7 @@ train:
   num_epochs: 10
   num_episodes: 200
   min_replay_size: 16
+  max_replay_size: 200
   num_batches: 10
 mcts:
   cpuct: 10

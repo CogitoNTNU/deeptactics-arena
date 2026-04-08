@@ -88,7 +88,7 @@ def training_loop(config: Configuration):
     replay_buffer: ReplayBuffer = PrioritizedReplayBuffer(
         alpha=0.7,
         beta=0.9,
-        storage=LazyTensorStorage(max_size=200_000),
+        storage=LazyTensorStorage(max_size=config.train.max_replay_size),
         batch_size=config.train.batch_size,
     )
 
