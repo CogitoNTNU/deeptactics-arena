@@ -74,12 +74,7 @@ class MCTS:
             (len(legal_actions),), alpha, dtype=prior.dtype, device=prior.device
         )
 
-        if self.device.type == "mps":
-            noise = (
-                torch.distributions.Dirichlet(conc.to("cpu")).sample().to(self.device)
-            )
-        else:
-            noise = torch.distributions.Dirichlet(conc).sample()
+        noise = torch.distributions.Dirichlet(conc).sample()
         # på bare legal actions
         prior[legal_actions] = (1 - epsilon) * prior[legal_actions] + epsilon * noise
 
