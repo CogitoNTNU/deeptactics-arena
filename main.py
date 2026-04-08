@@ -93,6 +93,7 @@ def training_loop(config: Configuration):
         alpha=0.7,
         beta=0.9,
         storage=LazyTensorStorage(max_size=200_000),
+        batch_size=config.train.batch_size,
     )
 
     model = AlphaZeroNet(config.network).to(device)
