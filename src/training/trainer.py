@@ -1,5 +1,5 @@
 import torch
-from torchrl.data import ReplayBuffer
+from torchrl.data import ReplayBuffer, TensorDictPrioritizedReplayBuffer
 import torch.nn as nn
 from src.training.train_config import TrainConfiguration
 import wandb
@@ -8,7 +8,7 @@ MODELS_PATH = "models"
 
 
 def train(
-    replay_buffer: ReplayBuffer,
+    replay_buffer: TensorDictPrioritizedReplayBuffer,
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
     config: TrainConfiguration,
@@ -47,7 +47,7 @@ def train(
 
 
 def train_one_epoch(
-    replay_buffer: ReplayBuffer,
+    replay_buffer: TensorDictPrioritizedReplayBuffer,
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
     batch_size: int = 2048,
@@ -79,6 +79,11 @@ def train_one_epoch(
         policy_loss, value_loss, loss = loss_function(
             pred_policies, pred_values, policies, values
         )
+
+        td_error = (values.unsqueeze(-1) - pred_values).abs().detach().cpu()
+        batch.set("td_error", td_error)
+        replay_buffer.update_tensordict_priority(batch)
+
         loss.backward()
 
         grad_norm = (
