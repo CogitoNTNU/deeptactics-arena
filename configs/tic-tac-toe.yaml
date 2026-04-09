@@ -17,6 +17,7 @@ train:
   min_replay_size: 500
   max_replay_size: 10_000
   num_batches: 10
+  T_0 : 100
 mcts:
   cpuct: 10
   pi_temp: 1.5

@@ -12,13 +12,14 @@ def train(
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
     config: TrainConfiguration,
+    scheduler: torch.optim.lr_scheduler.LRScheduler
 ):
     best_loss = float("inf")
     for epoch in range(config.num_epochs):
         model.train(True)
 
         metrics = train_one_epoch(
-            replay_buffer, model, optimizer, config.batch_size, config.num_batches
+            replay_buffer, model, optimizer, scheduler, config.batch_size, config.num_batches
         )
 
         wandb.log(
@@ -50,6 +51,7 @@ def train_one_epoch(
     replay_buffer: TensorDictPrioritizedReplayBuffer,
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
+    scheduler : torch.optim.lr_scheduler.LRScheduler,
     batch_size: int = 2048,
     num_batches: int = 1000,
 ) -> dict:
@@ -90,7 +92,7 @@ def train_one_epoch(
             ** 0.5
         )
 
-        optimizer.step()
+        scheduler.step()
 
         with torch.no_grad():
             entropy = -(pred_policies * (pred_policies + 1e-8).log()).sum(dim=-1).mean()

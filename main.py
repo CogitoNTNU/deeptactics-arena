@@ -105,6 +105,9 @@ def training_loop(config: Configuration):
         lr=config.train.learning_rate,
         weight_decay=config.weight_decay,
     )
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+        optimizer, T_0 = config.train.T_0
+    )
 
     for episode in range(config.train.num_episodes):
         replay_buffer, game_stats = generate_training_data(replay_buffer, config, model)
@@ -116,11 +119,13 @@ def training_loop(config: Configuration):
                 "replay_buffer/size": len(replay_buffer),
                 "self_play/outcome": game_stats["outcome"],
                 "self_play/mcts_policy_entropy": game_stats["mcts_policy_entropy"],
+                "learning_rate": scheduler.get_last_lr()[0]
             }
         )
 
+
         if len(replay_buffer) >= config.train.min_replay_size:
-            train(replay_buffer, model, optimizer, config.train)
+            train(replay_buffer, model, optimizer, config.train, scheduler)
             record_episode(model, config.env_name, episode, device)
             eval_metrics = evaluate_vs_random(model, config.env_name, device)
             wandb.log({"episode": episode, **eval_metrics})
