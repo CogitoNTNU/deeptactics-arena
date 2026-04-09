@@ -71,12 +71,11 @@ def evaluate_vs_random(
                 obs_tensor = torch.tensor(
                     obs["observation"], dtype=torch.float32
                 ).to(device)
-                with torch.no_grad():
-                    policy, _ = model(obs_tensor)
                 action_mask = torch.tensor(
                     obs["action_mask"], dtype=torch.bool
                 ).to(device)
-                policy[~action_mask] = -float("inf")
+                with torch.no_grad():
+                    policy, _ = model(obs_tensor, action_mask=action_mask)
                 action = torch.argmax(policy).item()
             else:
                 legal = [i for i, m in enumerate(obs["action_mask"]) if m]

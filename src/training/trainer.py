@@ -4,23 +4,22 @@ import torch.nn as nn
 from src.training.train_config import TrainConfiguration
 import wandb
 
-MODELS_PATH = "models"
-
-
 def train(
     replay_buffer: TensorDictPrioritizedReplayBuffer,
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
     config: TrainConfiguration,
-):
-    best_loss = float("inf")
-    for epoch in range(config.num_epochs):
+    epoch_offset: int = 0,
+) -> int:
+    """Train for num_epochs. Returns the new epoch offset."""
+    for i in range(config.num_epochs):
         model.train(True)
 
         metrics = train_one_epoch(
             replay_buffer, model, optimizer, config.batch_size, config.num_batches
         )
 
+        epoch = epoch_offset + i + 1
         wandb.log(
             {
                 "epoch": epoch,
@@ -34,16 +33,7 @@ def train(
             }
         )
 
-        if metrics["loss"] < best_loss:
-            best_loss = metrics["loss"]
-            model_name = (
-                f"{MODELS_PATH}/best_model_epoch_{epoch}_loss_{metrics['loss']:.3f}.pt"
-            )
-
-            torch.save(model.state_dict(), model_name)
-            artifact = wandb.Artifact("deeptactics_arena", type="model")
-            artifact.add_file(model_name)
-            wandb.log_artifact(artifact)
+    return epoch_offset + config.num_epochs
 
 
 def train_one_epoch(
@@ -85,10 +75,7 @@ def train_one_epoch(
 
         loss.backward()
 
-        grad_norm = (
-            sum(p.grad.norm() ** 2 for p in model.parameters() if p.grad is not None)
-            ** 0.5
-        )
+        grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
         optimizer.step()
 

@@ -9,3 +9,4 @@ class TrainConfiguration(BaseModel):
     min_replay_size: int
     max_replay_size: int
     num_batches: int
+    num_parallel_games: int = 1
