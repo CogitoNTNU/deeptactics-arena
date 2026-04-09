@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from torchrl.data import ReplayBuffer, PrioritizedReplayBuffer
 from torchrl.data import LazyTensorStorage
 from torch.optim import AdamW
+import cProfile
 
 from src.training.vetle.mcts import MCTS
 
@@ -152,6 +153,12 @@ if __name__ == "__main__":
     )
 
     # Start training loop
+    pr = cProfile.Profile()
+    pr.enable()
+
     training_loop(config)
+
+    pr.disable()
+    pr.dump_stats("training_loop.prof")
 
     run.finish()
