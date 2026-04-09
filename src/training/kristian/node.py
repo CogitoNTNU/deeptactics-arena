@@ -1,7 +1,8 @@
 class Node:
-    def __init__(self,state, parent = None, action_from_parent = None, prior = 0.0, is_terminal = False, env = None):
+    def __init__(self,state, parent = None, action_from_parent = None, prior = 0.0, is_terminal = False, env = None, terminal_reward : float = 0.0):
            
         self.is_terminal = bool(is_terminal)
+        self.terminal_reward = float(terminal_reward)
         
 
         #neural net stats
@@ -18,6 +19,7 @@ class Node:
         
         #env
         self.env = env
+        
 
     #funksjoner
 
