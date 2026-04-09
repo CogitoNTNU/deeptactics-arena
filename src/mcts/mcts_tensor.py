@@ -1,6 +1,7 @@
 import torch
 from tensordict import TensorDict
 from torchrl.data import TensorStorage
+from chess import Board
 
 # Change later to use a config file or something
 state_shape = (3, 3)  # Example for tic-tac-toe
@@ -23,3 +24,15 @@ tree = TensorStorage(
         }
     )
 )
+
+def fast_state_transition_chess(state: torch.Tensor, action: int) -> tuple[torch.Tensor, float]:
+    """
+    Placeholder for a function that computes the next state and reward given the current state and action
+
+    """
+    # Placeholder for a function that computes the next state given the current state and action
+    board = Board(state.numpy())
+    board.push(board.legal_moves[action])
+    next_state = torch.tensor(board.fen(), dtype=torch.float32).to(device)
+    reward = 1.0 if board.is_checkmate() else 0.0
+    return next_state, reward

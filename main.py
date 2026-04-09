@@ -1,5 +1,9 @@
 from argparse import ArgumentParser
-from torchrl.data import ReplayBuffer, PrioritizedReplayBuffer
+from torchrl.data import (
+    ReplayBuffer,
+    PrioritizedReplayBuffer,
+    TensorDictPrioritizedReplayBuffer,
+)
 from torchrl.data import LazyTensorStorage
 from torch.optim import AdamW
 import cProfile
@@ -17,11 +21,7 @@ import torch
 import wandb
 
 
-device = torch.device(
-    "cuda"
-    if torch.cuda.is_available()
-    else "mps" if torch.backends.mps.is_available() else "cpu"
-)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def generate_training_data(
@@ -90,10 +90,13 @@ def generate_training_data(
 
 
 def training_loop(config: Configuration):
-    replay_buffer: ReplayBuffer = PrioritizedReplayBuffer(
-        alpha=0.7,
-        beta=0.9,
-        storage=LazyTensorStorage(max_size=200_000),
+    replay_buffer: TensorDictPrioritizedReplayBuffer = (
+        TensorDictPrioritizedReplayBuffer(
+            alpha=0.7,
+            beta=0.9,
+            storage=LazyTensorStorage(max_size=config.train.max_replay_size),
+            batch_size=config.train.batch_size,
+        )
     )
 
     model = AlphaZeroNet(config.network).to(device)
