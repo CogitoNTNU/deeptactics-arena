@@ -169,8 +169,11 @@ def training_loop(config: Configuration):
             )
 
         if len(replay_buffer) >= config.train.min_replay_size:
-            epoch_offset = train(replay_buffer, model, optimizer, config.train, epoch_offset)
-            record_episode(model, config.env_name, games_played, device)
+            epoch_offset = train(
+                replay_buffer, model, optimizer, config.train, epoch_offset
+            )
+            if iteration % config.num_episodes_to_record == 0:
+                record_episode(model, config.env_name, games_played, device)
             eval_metrics = evaluate_vs_random(model, config.env_name, device)
             wandb.log({"episode": games_played, **eval_metrics})
 
@@ -202,7 +205,7 @@ if __name__ == "__main__":
     config = load_config(config_name)
     # Initialize wandb
     run = wandb.init(
-        entity="iluddeludde",
+        entity="deeptactics-arena",
         project="AlphaZero deeptactics",
         config=config.model_dump(),
         # mode="disabled",  # disabled offline online
