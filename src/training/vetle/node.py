@@ -27,9 +27,9 @@ class Node:
             i for i in self.env.legal_moves() if self.obs["action_mask"][i]
         ]
 
-    def add_children(self, model):
-        for action in self.legal_actions:
-            new_node = Node(model, self.env, action, device=self.device)
-            new_node.parent = self
-
-            self.children[action] = new_node
+    def add_child(self, action: int, model):
+        """Expand a single child on demand (lazy expansion)."""
+        new_node = Node(model, self.env, action, device=self.device)
+        new_node.parent = self
+        self.children[action] = new_node
+        return new_node

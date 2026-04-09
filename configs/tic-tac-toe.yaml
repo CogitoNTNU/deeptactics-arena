@@ -20,6 +20,7 @@ train:
 mcts:
   cpuct: 10
   pi_temp: 1.5
+  exploration_moves: 4
   epsilon: 0.25
 
 env_name: tic_tac_toe

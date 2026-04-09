@@ -23,10 +23,12 @@ def test_loss():
 
     correct_value = 4.886941432952881  # -sum(pi * log(p)) + mse(pred_values, values)
 
-    loss_fn_loss = loss_function(pred_policies, pred_values, policies, values)
+    policy_loss, value_loss, total_loss, per_sample = loss_function(
+        pred_policies, pred_values, policies, values
+    )
 
-    assert loss_fn_loss == correct_value, (
-        f"Expected loss of {correct_value}, got {loss_fn_loss}"
+    assert torch.isclose(total_loss, torch.tensor(correct_value), atol=1e-4), (
+        f"Expected loss of {correct_value}, got {total_loss.item()}"
     )
 
 

@@ -52,7 +52,7 @@ def main():
     model = AlphaZeroNet(config.network).to(device)
 
     # Load the best model (lowest loss)
-    model_path = sys.argv[1] if len(sys.argv) > 1 else "models/best_model_epoch_2_loss_1.268.pt"
+    model_path = sys.argv[1] if len(sys.argv) > 1 else "models/best_model.pt"
     model.load_state_dict(torch.load(model_path, map_location=device, weights_only=True))
     model.eval()
     print(f"Loaded model from {model_path}")
