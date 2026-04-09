@@ -10,17 +10,20 @@ network:
   head:
     hidden_blocks: 1
 train:
-  learning_rate: 0.001
+  learning_rate: 0.0005
   batch_size: 32
   num_epochs: 10
-  num_episodes: 200
-  min_replay_size: 500
+  num_episodes: 1000
+  min_replay_size: 200
   max_replay_size: 10_000
   num_batches: 10
+  num_parallel_games: 4
 mcts:
-  cpuct: 10
-  pi_temp: 1.5
+  cpuct: 2.0
+  pi_temp: 1.0
   exploration_moves: 4
   epsilon: 0.25
+  num_simulations: 200
+  dirichlet_alpha: 0.3
 
 env_name: tic_tac_toe
