@@ -2,7 +2,7 @@ network:
   encoder_type: mlp
   input_shape: 18
   hidden_shape: 128
-  legal_actions: 7
+  legal_actions: 9
   num_layers: 4
   stem:
     num_residual_blocks: 1

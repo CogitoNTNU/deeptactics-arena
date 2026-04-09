@@ -37,13 +37,13 @@ class AlphaZeroNet(nn.Module):
             config.legal_actions, config.stem.block_size, config.head.hidden_blocks
         )
 
-    def forward(self, obs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, obs: torch.Tensor, action_mask: torch.Tensor = None) -> tuple[torch.Tensor, torch.Tensor]:
         x = self.model.forward(obs)
         for i, block in enumerate(self.common_blocks):
             x = block(x)
 
         # pred of values and policies
-        policies, values = self.head.forward(x)
+        policies, values = self.head.forward(x, action_mask=action_mask)
         return policies, values
 
 
@@ -145,7 +145,9 @@ class MLPEncoder(nn.Module):  # f : obs -> input
         if output_shape <= 0:
             raise ValueError
 
+        self.expected_flat_size = input_shape
         self.leakyrelu = nn.LeakyReLU()
+        self.flatten = nn.Flatten()
         self.input_layer = nn.Linear(input_shape, out_features=hidden_dim)
         self.hidden_layers = nn.ModuleList(
             [nn.Linear(hidden_dim, hidden_dim) for i in range(num_layers)]
@@ -153,13 +155,22 @@ class MLPEncoder(nn.Module):  # f : obs -> input
         self.output_layer = nn.Linear(hidden_dim, output_shape)
 
     def forward(self, observation: torch.Tensor) -> torch.Tensor:
-        x = self.input_layer(observation)
+        # Flatten spatial dims: (3,3,2) -> (18,), (B,3,3,2) -> (B,18)
+        was_unbatched = observation.dim() > 0 and observation.numel() == self.expected_flat_size
+        if was_unbatched:
+            observation = observation.unsqueeze(0)
+
+        x = self.flatten(observation)  # (B, ...) -> (B, flat)
+
+        x = self.input_layer(x)
         x = self.leakyrelu(x)
-        for i, layer in enumerate(self.hidden_layers):
+        for layer in self.hidden_layers:
             x = layer(x)
             x = self.leakyrelu(x)
         x = self.output_layer(x)
 
+        if was_unbatched:
+            x = x.squeeze(0)
         return x
 
 
@@ -199,11 +210,19 @@ class NetworkHead(nn.Module):
 
 
 
-    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, x: torch.Tensor, action_mask: torch.Tensor = None) -> tuple[torch.Tensor, torch.Tensor]:
+        for block in self.common_block:
+            x = block(x)
+
         value = self.value_head(x)
         value = self.tanh(value)
 
         policy_logits = self.policy_head(x)
+
+        if action_mask is not None:
+            # Mask illegal actions before softmax so they get zero probability
+            policy_logits = policy_logits.masked_fill(~action_mask, float("-inf"))
+
         policy_logits = self.softmax(policy_logits)
 
         # [B,A], [B,1]
