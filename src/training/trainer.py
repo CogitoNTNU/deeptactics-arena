@@ -4,11 +4,13 @@ import torch.nn as nn
 from src.training.train_config import TrainConfiguration
 import wandb
 
+
 def train(
     replay_buffer: TensorDictPrioritizedReplayBuffer,
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
     config: TrainConfiguration,
+    scheduler: torch.optim.lr_scheduler.LRScheduler,
     epoch_offset: int = 0,
 ) -> int:
     """Train for num_epochs. Returns the new epoch offset."""
@@ -16,7 +18,12 @@ def train(
         model.train(True)
 
         metrics = train_one_epoch(
-            replay_buffer, model, optimizer, config.batch_size, config.num_batches
+            replay_buffer,
+            model,
+            optimizer,
+            scheduler,
+            config.batch_size,
+            config.num_batches,
         )
 
         epoch = epoch_offset + i + 1
@@ -40,6 +47,7 @@ def train_one_epoch(
     replay_buffer: TensorDictPrioritizedReplayBuffer,
     model: nn.Module,
     optimizer: torch.optim.Optimizer,
+    scheduler: torch.optim.lr_scheduler.LRScheduler,
     batch_size: int = 2048,
     num_batches: int = 1000,
 ) -> dict:
@@ -77,7 +85,7 @@ def train_one_epoch(
 
         grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
-        optimizer.step()
+        scheduler.step()
 
         with torch.no_grad():
             entropy = -(pred_policies * (pred_policies + 1e-8).log()).sum(dim=-1).mean()
