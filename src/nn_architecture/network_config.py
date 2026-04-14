@@ -1,6 +1,9 @@
+from pathlib import Path
+
 from pydantic import BaseModel
 import yaml
 from src.nn_architecture.environment_config import EnvironmentConfig
+
 
 
 class StemConfig(BaseModel):

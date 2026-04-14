@@ -10,7 +10,8 @@ class RandomAgent(Agent):
         self.num_legal_actions = num_legal_actions
     
     def act(self, observation: Union[ndarray, Tensor], legal_mask: Union[ndarray, Tensor]) -> int:
-        return random.randint(self.num_legal_actions)
+        legal_actions = [i for i in range(self.num_legal_actions) if legal_mask[i]]
+        return random.choice(legal_actions)
     
     def load_policy(self, policy_name: str) -> None:
         pass
