@@ -1,13 +1,15 @@
-from src.agent import Agent
-from src.nn_architecture.environment_config import EnvironmentConfig
-from pettingzoo.utils.env import AECEnv
-from pettingzoo.classic import connect_four_v3, tictactoe_v3, chess_v6
+import csv
+import json
 from itertools import permutations
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
-import csv
-import json
+
+from pettingzoo.utils.env import AECEnv
+from pettingzoo.classic import connect_four_v3, tictactoe_v3, chess_v6
 import wandb
+
+from src.agent import Agent
+from src.nn_architecture.environment_config import EnvironmentConfig
 
 
 @dataclass
@@ -51,7 +53,6 @@ class TOPP:
         match env_config.env_name:
             case "tictactoe":
                 env = tictactoe_v3.env(render_mode=env_config.render_mode)
-                env.reset(seed=42)
             case "connect_four":
                 env = connect_four_v3.env(render_mode=env_config.render_mode)
             case "chess":
@@ -69,6 +70,17 @@ class TOPP:
             use_elo: bool = True,
             elo_k: float = 24.0
             ) -> TournamentResults:
+        """
+        Runs a tournament of policies and players (TOPP) and returns the results.
+        Args:
+            policies: A list of Agent instances to be evaluated.
+            env_config: Configuration for the environment.
+            policy_names: A list of names for the policies.
+            use_elo: Whether to use ELO rating system.
+            elo_k: The K-factor for ELO rating updates.
+        Returns:
+            TournamentResults: The results of the tournament.
+        """
         if policy_names is None:
             policy_names = [f"policy_{i}" for i in range(len(policies))]
         if len(policy_names) != len(policies):
