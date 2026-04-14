@@ -10,6 +10,7 @@ import wandb
 
 from src.agent import Agent
 from src.nn_architecture.environment_config import EnvironmentConfig
+from src.environments.environment import build_environment
 
 
 @dataclass
@@ -48,19 +49,6 @@ class TOPP:
     
     def __init__(self):
         super().__init__()
-
-    def build_env(self, env_config: EnvironmentConfig)->AECEnv:
-        match env_config.env_name:
-            case "tictactoe":
-                env = tictactoe_v3.env(render_mode=env_config.render_mode)
-            case "connect_four":
-                env = connect_four_v3.env(render_mode=env_config.render_mode)
-            case "chess":
-                env = chess_v6.env(render_mode=env_config.render_mode)
-            case _:
-                raise ValueError(f"Invalid env_name: {env_config.env_name}")
-        return env
-
 
     def run_topp(
             self,
