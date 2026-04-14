@@ -1,6 +1,6 @@
 import gymnasium as gym
 import torch
-from DQN import DQN
+from src.dqn.DQN import DQN
 
 env = gym.make("CartPole-v1")
 model = DQN()

@@ -253,10 +253,11 @@ lerna-debug.log
 .DS_Store
 Thumbs.db
 
-
+*.prof
 *.zip
 
 slurm_outputs/
 .vscode/
 
 wandb/
+models/

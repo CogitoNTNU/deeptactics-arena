@@ -10,7 +10,6 @@ class AlphaZeroNet(nn.Module):
         encoder_type = config.encoder_type
         match encoder_type:
             case "cnn":
-                # TODO implement CNN
                 self.model = CNNEncoder(
                     input_shape=config.input_shape,
                     output_shape=config.stem.block_size,
@@ -38,13 +37,13 @@ class AlphaZeroNet(nn.Module):
             config.legal_actions, config.stem.block_size, config.head.hidden_blocks
         )
 
-    def forward(self, obs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, obs: torch.Tensor, action_mask: torch.Tensor = None) -> tuple[torch.Tensor, torch.Tensor]:
         x = self.model.forward(obs)
         for i, block in enumerate(self.common_blocks):
             x = block(x)
 
         # pred of values and policies
-        policies, values = self.head.forward(x)
+        policies, values = self.head.forward(x, action_mask=action_mask)
         return policies, values
 
 
@@ -146,6 +145,9 @@ class MLPEncoder(nn.Module):  # f : obs -> input
         if output_shape <= 0:
             raise ValueError
 
+        self.expected_flat_size = input_shape
+        self.leakyrelu = nn.LeakyReLU()
+        self.flatten = nn.Flatten()
         self.input_layer = nn.Linear(input_shape, out_features=hidden_dim)
         self.hidden_layers = nn.ModuleList(
             [nn.Linear(hidden_dim, hidden_dim) for i in range(num_layers)]
@@ -153,36 +155,43 @@ class MLPEncoder(nn.Module):  # f : obs -> input
         self.output_layer = nn.Linear(hidden_dim, output_shape)
 
     def forward(self, observation: torch.Tensor) -> torch.Tensor:
-        leakyrelu = nn.LeakyReLU()
+        # Flatten spatial dims: (3,3,2) -> (18,), (B,3,3,2) -> (B,18)
+        was_unbatched = observation.dim() > 0 and observation.numel() == self.expected_flat_size
+        if was_unbatched:
+            observation = observation.unsqueeze(0)
 
-        x = self.input_layer(observation)
-        x = leakyrelu(x)
-        for i, layer in enumerate(self.hidden_layers):
+        x = self.flatten(observation)  # (B, ...) -> (B, flat)
+
+        x = self.input_layer(x)
+        x = self.leakyrelu(x)
+        for layer in self.hidden_layers:
             x = layer(x)
-            x = leakyrelu(x)
+            x = self.leakyrelu(x)
         x = self.output_layer(x)
 
+        if was_unbatched:
+            x = x.squeeze(0)
         return x
 
 
 class ResidualBlock(nn.Module):
     def __init__(self, block_size: int, hidden_dim: int = 128):
         super().__init__()
+        self.leakyrelu = nn.LeakyReLU()
 
         self.layer1 = nn.Linear(block_size, hidden_dim)
         self.layer2 = nn.Linear(hidden_dim, block_size)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        leakyrelu = nn.LeakyReLU()
 
         activation = self.layer1(x)
-        activation = leakyrelu(activation)
+        activation = self.leakyrelu(activation)
 
         activation = self.layer2(activation)
-        activation = leakyrelu(activation)
+        activation = self.leakyrelu(activation)
 
         activation += x
-        activation = leakyrelu(activation)
+        activation = self.leakyrelu(activation)
 
         return activation
 
@@ -190,21 +199,38 @@ class ResidualBlock(nn.Module):
 class NetworkHead(nn.Module):
     def __init__(self, legal_actions, input_shape, num_hidden_blocks):
         super().__init__()
-        self.common_block = nn.ModuleList(
-            [ResidualBlock(input_shape) for i in range(num_hidden_blocks)]
+        # Separate residual blocks for policy and value to avoid gradient interference
+        self.policy_blocks = nn.ModuleList(
+            [ResidualBlock(input_shape) for _ in range(num_hidden_blocks)]
+        )
+        self.value_blocks = nn.ModuleList(
+            [ResidualBlock(input_shape) for _ in range(num_hidden_blocks)]
         )
 
         self.value_head = nn.Linear(input_shape, 1)
         self.policy_head = nn.Linear(input_shape, legal_actions)
+        self.tanh = nn.Tanh()
+        self.softmax = nn.Softmax(dim=-1)
 
-    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        tanh = nn.Tanh()
-        value = self.value_head(x)
-        value = tanh(value)
+    def forward(self, x: torch.Tensor, action_mask: torch.Tensor = None) -> tuple[torch.Tensor, torch.Tensor]:
+        # Separate paths for policy and value
+        policy_features = x
+        for block in self.policy_blocks:
+            policy_features = block(policy_features)
 
-        softmax = nn.Softmax()
-        policy_logits = self.policy_head(x)
-        policy_logits = softmax(policy_logits)
+        value_features = x
+        for block in self.value_blocks:
+            value_features = block(value_features)
+
+        value = self.value_head(value_features)
+        value = self.tanh(value)
+
+        policy_logits = self.policy_head(policy_features)
+
+        if action_mask is not None:
+            policy_logits = policy_logits.masked_fill(~action_mask, float("-inf"))
+
+        policy_logits = self.softmax(policy_logits)
 
         # [B,A], [B,1]
         return policy_logits, value
