@@ -5,48 +5,14 @@ from torch import Tensor
 
 
 class Agent(Protocol):
-    def act(self, observation: Union[ndarray, Tensor]) -> int:
+    def act(self, observation: Union[ndarray, Tensor], legal_mask: Union[ndarray, Tensor]) -> int:
         """
         Determine the action to take based on the current observation.
         Args:
             observation (Union[ndarray, Tensor]): The current state observation from the environment.
+            legal_mask (Union[ndarray, Tensor]): Encodes whether the current state observation is legal.
         Returns:
             int: The action chosen by the agent.
-        """
-        ...
-
-    def store(
-        self,
-        observation: Union[ndarray, Tensor],
-        action: int,
-        reward: float,
-        terminated: bool,
-        next_observation: Union[ndarray, Tensor],
-    ) -> None:
-        """
-        Store the experience in the agent's replay buffer.
-        """
-        ...
-
-    def update(
-        self,
-    ) -> dict:
-        """
-        Update the agent's knowledge based on the experiences stored in the replay buffer.
-
-        Args:
-            batch_size (int): The number of experiences to sample from the replay buffer for each update
-        Returns:
-            dict: A dictionary containing relevant metrics from the update process (e.g., loss values).
-        """
-        ...
-
-    def save_policy(self, policy_name: str) -> None:
-        """
-        Save the current policy.
-
-        Args:
-            policy_name (str): The name to use when saving the policy.
         """
         ...
 

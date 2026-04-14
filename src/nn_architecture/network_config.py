@@ -1,4 +1,9 @@
+from pathlib import Path
+
 from pydantic import BaseModel
+import yaml
+from src.nn_architecture.environment_config import EnvironmentConfig
+
 
 
 class StemConfig(BaseModel):
@@ -18,3 +23,13 @@ class NetworkConfig(BaseModel):
     num_layers: int
     stem: StemConfig
     head: HeadConfig
+
+class Configuration(BaseModel):
+    env: EnvironmentConfig
+
+def load_config(path:str | Path)->Configuration:
+    path = Path(path)
+    with path.open() as file:
+        raw_config = yaml.safe_load(file)
+    return Configuration(**raw_config)
+
