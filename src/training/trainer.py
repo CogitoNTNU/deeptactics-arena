@@ -10,6 +10,7 @@ def train(
     optimizer: torch.optim.Optimizer,
     config: TrainConfiguration,
     scheduler: torch.optim.lr_scheduler.LRScheduler
+    scheduler: torch.optim.lr_scheduler.LRScheduler
     epoch_offset: int = 0,
 ) -> int:
     """Train for num_epochs. Returns the new epoch offset."""
