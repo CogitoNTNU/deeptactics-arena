@@ -28,8 +28,8 @@ class Configuration(BaseModel):
     env: EnvironmentConfig
 
 def load_config(path:str | Path)->Configuration:
-    path = os.path.join(CONFIG_PATH, path)
-    with open(path) as file:
+    path = Path(path)
+    with path.open() as file:
         raw_config = yaml.safe_load(file)
     return Configuration(**raw_config)
 
