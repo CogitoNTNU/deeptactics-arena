@@ -33,8 +33,8 @@ class AgentMetrics:
 
 @dataclass
 class TournamentResults:
-        matches: list[MatchResult] = field(default_factory=list)
-        results: dict[str, AgentMetrics] = field(default_factory=dict)
+    matches: list[MatchResult] = field(default_factory=list)
+    results: dict[str, AgentMetrics] = field(default_factory=dict)
 
 
 class TOPP:
