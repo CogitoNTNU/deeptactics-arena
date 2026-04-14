@@ -65,7 +65,7 @@ class TOPP:
             env_config: Configuration for the environment.
             policy_names: A list of names for the policies.
             use_elo: Whether to use ELO rating system.
-            elo_k: The K-factor for ELO rating updates.
+            elo_k: The K-factor, a constant that determines how rapidly a player's rating changes in response to match results
         Returns:
             TournamentResults: The results of the tournament.
         """
