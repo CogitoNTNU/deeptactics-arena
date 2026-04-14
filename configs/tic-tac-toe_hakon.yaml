@@ -17,7 +17,7 @@ train:
   min_replay_size: 200
   max_replay_size: 5_000
   num_batches: 10
-  num_parallel_games: 4
+  num_parallel_games: 29
 mcts:
   cpuct: 4.0
   pi_temp: 1.0
