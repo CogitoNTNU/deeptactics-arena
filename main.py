@@ -45,7 +45,9 @@ def play_single_game(
 
         while True:
             observation = monte_carlo.root.obs
-            policy_values = monte_carlo.run_simulations(config.mcts.num_simulations, move_number)
+            policy_values = monte_carlo.run_simulations(
+                config.mcts.num_simulations, move_number
+            )
 
             entropy = -(policy_values * (policy_values + 1e-8).log()).sum().item()
             mcts_entropies.append(entropy)
@@ -134,6 +136,9 @@ def training_loop(config: Configuration):
         lr=config.train.learning_rate,
         weight_decay=config.weight_decay,
     )
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+        optimizer, T_0=config.train.T_0
+    )
 
     best_win_rate = -1.0
     num_parallel = config.train.num_parallel_games
@@ -160,12 +165,13 @@ def training_loop(config: Configuration):
                     "self_play/temperature": config.mcts.pi_temp,
                     "self_play/exploration_moves": config.mcts.exploration_moves,
                     "self_play/exploration_ratio": game_stats["exploration_ratio"],
+                    "learning_rate": scheduler.get_last_lr()[0],
                 }
             )
 
         if len(replay_buffer) >= config.train.min_replay_size:
             epoch_offset = train(
-                replay_buffer, model, optimizer, config.train, epoch_offset
+                replay_buffer, model, optimizer, config.train, scheduler, epoch_offset
             )
             if iteration % config.num_episodes_to_record == 0:
                 record_episode(model, config.env_name, games_played, device)
