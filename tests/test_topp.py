@@ -1,15 +1,16 @@
 import torch
 import pytest
-from src.agent import Agent
-from src.nn_architecture.network_config import EnvironmentConfig
-from pettingzoo.utils.env import AECEnv
-from pettingzoo.classic import connect_four_v3, tictactoe_v3, chess_v6
 from itertools import permutations
 from dataclasses import dataclass
+from pydantic import BaseModel
+
+from pettingzoo.utils.env import AECEnv
+from pettingzoo.classic import connect_four_v3, tictactoe_v3, chess_v6
+
+from src.agents.random_agent import RandomAgent
+from src.agent import Agent
 from src.topp import TOPP, AgentMetrics
 from src.nn_architecture.environment_config import EnvironmentConfig
-from pydantic import BaseModel
-from src.agents.random_agent import RandomAgent
 
 
 def test_build_env():
