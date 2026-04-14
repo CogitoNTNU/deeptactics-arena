@@ -7,6 +7,7 @@ from torchrl.data import (
 )
 from torchrl.data import LazyTensorStorage
 from torch.optim import AdamW
+import cProfile
 
 from src.training.vetle.mcts import MCTS
 
@@ -218,6 +219,12 @@ if __name__ == "__main__":
     wandb.define_metric("batch/*", step_metric="epoch")
 
     # Start training loop
+    pr = cProfile.Profile()
+    pr.enable()
+
     training_loop(config)
+
+    pr.disable()
+    pr.dump_stats("training_loop.prof")
 
     run.finish()
