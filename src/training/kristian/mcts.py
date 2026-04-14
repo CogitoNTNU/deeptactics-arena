@@ -35,10 +35,37 @@ class Mcts:
                 break
 
             current = best_child
-
         return current
     
-    #TODO: må få inn legal_moves og self.model(state.unsqueeze(0))
+    def get_root_policy(self, root: Node, temperature : float = 1.0) -> np.ndarray:
+        action_space = len(root.state['action_mask'])
+        pi = np.zeros(action_space, dtype=np.float32)
+
+        if not root.children:
+            legal = root.env.legal_moves()
+            pi[legal] = 1.0 / len(legal)
+            return pi
+        
+        actions = list(root.children.keys())
+        visits = np.array([root.children[a].visit_count for a in actions])
+
+        if temperature <= 0:
+            best = int(np.argmax(visits))
+            pi[actions[best]] = 1.0
+            return pi
+        
+        visits = visits ** (1.0 / temperature)
+        s = float(np.sum(visits))
+        if s > 0:
+            probs = visits / s
+        else:
+            probs = np.ones_like(visits) / len(visits)
+        
+        for a, p in zip(actions,probs):
+            pi[a] = p
+        
+        return pi
+    
 
     def expand(self, state, node: Node):
         with torch.no_grad():
@@ -57,8 +84,9 @@ class Mcts:
             child_env = node.env.clone()
             child_env.step(action)
 
-            child_obs, _ , terminated, truncated, _ = child_env.last()
+            child_obs, reward , terminated, truncated, _ = child_env.last()
             child_terminal = bool(terminated or truncated)
+            child.terminal_reward = float(reward)
 
             child = Node(
                 state = child_obs,
@@ -100,7 +128,9 @@ class Mcts:
         self.backprop(leaf,val)
         return val
 
-    def run_simulation(self,root: Node, num_simulations : int) -> None:
+    def run_simulation(self,root: Node,
+                        num_simulations : int, 
+                        temperature : float = 1.0) -> np.ndarray:
         if not root.is_expanded():
             self.expand(root.state,root)
 
@@ -108,6 +138,8 @@ class Mcts:
         
         for _ in range(num_simulations):
             self.simulate(root)
+
+        return self.get_root_policy(root,temperature)
 
             
         

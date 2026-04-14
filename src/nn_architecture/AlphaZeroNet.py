@@ -199,8 +199,12 @@ class ResidualBlock(nn.Module):
 class NetworkHead(nn.Module):
     def __init__(self, legal_actions, input_shape, num_hidden_blocks):
         super().__init__()
-        self.common_block = nn.ModuleList(
-            [ResidualBlock(input_shape) for i in range(num_hidden_blocks)]
+        # Separate residual blocks for policy and value to avoid gradient interference
+        self.policy_blocks = nn.ModuleList(
+            [ResidualBlock(input_shape) for _ in range(num_hidden_blocks)]
+        )
+        self.value_blocks = nn.ModuleList(
+            [ResidualBlock(input_shape) for _ in range(num_hidden_blocks)]
         )
 
         self.value_head = nn.Linear(input_shape, 1)
@@ -208,19 +212,22 @@ class NetworkHead(nn.Module):
         self.tanh = nn.Tanh()
         self.softmax = nn.Softmax(dim=-1)
 
-
-
     def forward(self, x: torch.Tensor, action_mask: torch.Tensor = None) -> tuple[torch.Tensor, torch.Tensor]:
-        for block in self.common_block:
-            x = block(x)
+        # Separate paths for policy and value
+        policy_features = x
+        for block in self.policy_blocks:
+            policy_features = block(policy_features)
 
-        value = self.value_head(x)
+        value_features = x
+        for block in self.value_blocks:
+            value_features = block(value_features)
+
+        value = self.value_head(value_features)
         value = self.tanh(value)
 
-        policy_logits = self.policy_head(x)
+        policy_logits = self.policy_head(policy_features)
 
         if action_mask is not None:
-            # Mask illegal actions before softmax so they get zero probability
             policy_logits = policy_logits.masked_fill(~action_mask, float("-inf"))
 
         policy_logits = self.softmax(policy_logits)

@@ -19,5 +19,6 @@ train:
 mcts:
   cpuct: 10
   pi_temp: 1.5
+  dirichlet_alpha: 0.03
 
 env_name: chess

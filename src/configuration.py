@@ -17,6 +17,7 @@ class Configuration(BaseModel):
     mcts: MCTSConfiguration
     env_name: str
     weight_decay: float = 1e-4
+    num_episodes_to_record: int = 10
 
 
 def load_config(path: str | Path) -> Configuration:
