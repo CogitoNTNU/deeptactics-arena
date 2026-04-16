@@ -14,6 +14,8 @@ class AlphaZeroNet(nn.Module):
                     input_shape=config.input_shape,
                     output_shape=config.stem.block_size,
                     num_layers=config.num_layers,
+                    hidden_channels=config.hidden_shape,
+                    kernel_size=config.kernel_size,
                 )
             case "mlp":
                 self.model = MLPEncoder(
@@ -37,7 +39,9 @@ class AlphaZeroNet(nn.Module):
             config.legal_actions, config.stem.block_size, config.head.hidden_blocks
         )
 
-    def forward(self, obs: torch.Tensor, action_mask: torch.Tensor = None) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(
+        self, obs: torch.Tensor, action_mask: torch.Tensor = None
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         x = self.model.forward(obs)
         for i, block in enumerate(self.common_blocks):
             x = block(x)
@@ -54,6 +58,7 @@ class CNNEncoder(nn.Module):
         output_shape: int,
         num_layers: int = 3,
         hidden_channels: int = 128,
+        kernel_size: int = 3,
     ):
         """
         Args:
@@ -85,7 +90,7 @@ class CNNEncoder(nn.Module):
                     nn.Conv2d(
                         in_channels=in_channels,
                         out_channels=hidden_channels,
-                        kernel_size=3,
+                        kernel_size=kernel_size,
                         stride=1,
                         padding=1,
                     ),
@@ -98,7 +103,13 @@ class CNNEncoder(nn.Module):
         self.conv_stack = nn.Sequential(*conv_layers)
 
         self.flatten = nn.Flatten()
-        self.output_layer = nn.Linear(hidden_channels * height * width, output_shape)
+
+        new_height = height + num_layers * (2 - kernel_size + 1)
+        new_width = width + num_layers * (2 - kernel_size + 1)
+
+        self.output_layer = nn.Linear(
+            hidden_channels * new_height * new_width, output_shape
+        )
 
     def forward(self, observation: torch.Tensor) -> torch.Tensor:
         """
@@ -156,7 +167,9 @@ class MLPEncoder(nn.Module):  # f : obs -> input
 
     def forward(self, observation: torch.Tensor) -> torch.Tensor:
         # Flatten spatial dims: (3,3,2) -> (18,), (B,3,3,2) -> (B,18)
-        was_unbatched = observation.dim() > 0 and observation.numel() == self.expected_flat_size
+        was_unbatched = (
+            observation.dim() > 0 and observation.numel() == self.expected_flat_size
+        )
         if was_unbatched:
             observation = observation.unsqueeze(0)
 
@@ -212,7 +225,9 @@ class NetworkHead(nn.Module):
         self.tanh = nn.Tanh()
         self.softmax = nn.Softmax(dim=-1)
 
-    def forward(self, x: torch.Tensor, action_mask: torch.Tensor = None) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(
+        self, x: torch.Tensor, action_mask: torch.Tensor = None
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         # Separate paths for policy and value
         policy_features = x
         for block in self.policy_blocks:

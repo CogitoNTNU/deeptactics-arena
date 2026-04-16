@@ -2,6 +2,7 @@ network:
   encoder_type: cnn
   input_shape: [6, 7, 2]
   hidden_shape: 128
+  kernel_size: 4
   legal_actions: 7
   num_layers: 4
   stem:
@@ -18,9 +19,12 @@ train:
   max_replay_size: 500_000
   num_batches: 10
   num_parallel_games: 8
+  T_0 : 100
 mcts:
   cpuct: 4
   pi_temp: 1
   epsilon: 0.25
+  num_simulations: 200
+  dirichlet_alpha: 0.3
 
 env_name: connect_four

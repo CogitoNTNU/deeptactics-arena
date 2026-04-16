@@ -5,7 +5,6 @@ import yaml
 from src.nn_architecture.environment_config import EnvironmentConfig
 
 
-
 class StemConfig(BaseModel):
     num_residual_blocks: int
     block_size: int
@@ -19,17 +18,19 @@ class NetworkConfig(BaseModel):
     encoder_type: str
     input_shape: int | list[int]
     hidden_shape: int
+    kernel_size: int = 3
     legal_actions: int
     num_layers: int
     stem: StemConfig
     head: HeadConfig
 
+
 class Configuration(BaseModel):
     env: EnvironmentConfig
 
-def load_config(path:str | Path)->Configuration:
+
+def load_config(path: str | Path) -> Configuration:
     path = Path(path)
     with path.open() as file:
         raw_config = yaml.safe_load(file)
     return Configuration(**raw_config)
-
