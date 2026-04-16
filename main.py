@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from torchrl.data import (
     ReplayBuffer,
     PrioritizedReplayBuffer,
@@ -111,7 +111,7 @@ def generate_games(
             executor.submit(play_single_game, config, model_state_dict)
             for _ in range(num_games)
         ]
-        for future in futures:
+        for future in as_completed(futures):
             trajectories, stats = future.result()
             all_trajectories.append(trajectories)
             all_stats.append(stats)

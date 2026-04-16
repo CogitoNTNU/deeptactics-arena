@@ -16,9 +16,12 @@ train:
   num_episodes: 200
   min_replay_size: 16
   max_replay_size: 200_000
+  num_batches: 16
+  T_0 : 1000
 mcts:
-  cpuct: 10
+  cpuct: 2
   pi_temp: 1.5
   dirichlet_alpha: 0.03
+  epsilon: 0.25
 
 env_name: chess

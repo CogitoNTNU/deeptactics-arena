@@ -12,7 +12,7 @@ class Node:
             self.env.step(self.action)
         self.obs, self.reward, self.terminated, self.truncated, _ = self.env.last()
 
-        obs_tensor = torch.tensor(self.obs["observation"], dtype=torch.float32).to(self.device)
+        obs_tensor = torch.tensor(self.obs["observation"].copy(), dtype=torch.float32).to(self.device)
         mask_tensor = torch.tensor(self.obs["action_mask"], dtype=torch.bool).to(self.device)
         self.pred_pol, self.pred_val = model.forward(obs_tensor, action_mask=mask_tensor)
 

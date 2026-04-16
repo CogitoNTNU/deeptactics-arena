@@ -24,7 +24,7 @@ def record_episode(
             frames.append(frame)
 
         obs = env.observe(env.agent_selection)
-        obs_tensor = torch.tensor(obs["observation"], dtype=torch.float32).to(device)
+        obs_tensor = torch.tensor(obs["observation"].copy(), dtype=torch.float32).to(device)
         action_mask = torch.tensor(obs["action_mask"], dtype=torch.bool).to(device)
         with torch.no_grad():
             policy, _ = model(obs_tensor, action_mask=action_mask)
@@ -69,7 +69,7 @@ def evaluate_vs_random(
 
             if current_agent == az_agent:
                 obs_tensor = torch.tensor(
-                    obs["observation"], dtype=torch.float32
+                    obs["observation"].copy(), dtype=torch.float32
                 ).to(device)
                 action_mask = torch.tensor(
                     obs["action_mask"], dtype=torch.bool
