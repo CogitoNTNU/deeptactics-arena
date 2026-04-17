@@ -1,5 +1,4 @@
 from gymnasium import Env
-from copy import deepcopy
 import torch
 
 
@@ -12,9 +11,15 @@ class Node:
             self.env.step(self.action)
         self.obs, self.reward, self.terminated, self.truncated, _ = self.env.last()
 
-        obs_tensor = torch.tensor(self.obs["observation"].copy(), dtype=torch.float32).to(self.device)
-        mask_tensor = torch.tensor(self.obs["action_mask"], dtype=torch.bool).to(self.device)
-        self.pred_pol, self.pred_val = model.forward(obs_tensor, action_mask=mask_tensor)
+        obs_tensor = torch.tensor(
+            self.obs["observation"].copy(), dtype=torch.float32
+        ).to(self.device)
+        mask_tensor = torch.tensor(self.obs["action_mask"], dtype=torch.bool).to(
+            self.device
+        )
+        self.pred_pol, self.pred_val = model.forward(
+            obs_tensor, action_mask=mask_tensor
+        )
 
         self.parent: Node = None
         self.children: dict[int, Node] = {}

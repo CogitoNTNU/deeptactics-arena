@@ -25,12 +25,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def play_single_game(
-    config: Configuration, model_state_dict: dict
+    config: Configuration, model: AlphaZeroNet
 ) -> tuple[list[TensorDict], dict]:
     """Play a single self-play game and return trajectories + stats."""
     # Each worker builds its own model on CPU to avoid GPU contention
-    model = AlphaZeroNet(config.network)
-    model.load_state_dict(model_state_dict)
     model.eval()
 
     env = build_environment(config.env_name)
@@ -40,7 +38,7 @@ def play_single_game(
     mcts_entropies: list[float] = []
 
     with torch.no_grad():
-        monte_carlo = MCTS(env=env, config=config, model=model, device="cpu")
+        monte_carlo = MCTS(env=env, config=config, model=model, device=device)
         move_number = 0
 
         while True:
@@ -98,25 +96,9 @@ def generate_games(
     config: Configuration, model: AlphaZeroNet, num_games: int
 ) -> tuple[list[list[TensorDict]], list[dict]]:
     """Generate multiple self-play games, in parallel if num_games > 1."""
-    model_state_dict = {k: v.cpu() for k, v in model.state_dict().items()}
 
-    if num_games == 1:
-        trajectories, stats = play_single_game(config, model_state_dict)
-        return [trajectories], [stats]
-
-    all_trajectories = []
-    all_stats = []
-    with ProcessPoolExecutor(max_workers=num_games) as executor:
-        futures = [
-            executor.submit(play_single_game, config, model_state_dict)
-            for _ in range(num_games)
-        ]
-        for future in as_completed(futures):
-            trajectories, stats = future.result()
-            all_trajectories.append(trajectories)
-            all_stats.append(stats)
-
-    return all_trajectories, all_stats
+    trajectories, stats = play_single_game(config, model)
+    return [trajectories], [stats]
 
 
 def training_loop(config: Configuration):
