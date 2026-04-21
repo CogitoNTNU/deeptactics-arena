@@ -1,7 +1,7 @@
 #!/bin/sh
-#SBATCH --account=studiegrupper-cogito
+#SBATCH --account=share-ie-idi
 #SBATCH --job-name="deeptactics"
-#SBATCH --time=03-00:00:00
+#SBATCH --time=09-00:00:00
 #SBATCH --partition=GPUQ
 #SBATCH --mem=40GB
 #SBATCH --gres=gpu:1

@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --account=studiegrupper-cogito
+#SBATCH --account=share-ie-idi
 #SBATCH --job-name="deeptactics Kristian"
 #SBATCH --time=10:00:00
 #SBATCH --partition=GPUQ

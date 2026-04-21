@@ -95,10 +95,13 @@ def play_single_game(
 def generate_games(
     config: Configuration, model: AlphaZeroNet, num_games: int
 ) -> tuple[list[list[TensorDict]], list[dict]]:
-    """Generate multiple self-play games, in parallel if num_games > 1."""
-
-    trajectories, stats = play_single_game(config, model)
-    return [trajectories], [stats]
+    all_trajectories = []
+    all_stats = []
+    for _ in range(num_games):
+        trajectories, stats = play_single_game(config, model)
+        all_trajectories.append(trajectories)
+        all_stats.append(stats)
+    return all_trajectories, all_stats
 
 
 def training_loop(config: Configuration):

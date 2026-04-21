@@ -7,3 +7,4 @@ class MCTSConfiguration(BaseModel):
     epsilon: float
     dirichlet_alpha: float = 0.3
     num_simulations: int = 200
+    eval_batch_size: int = 16

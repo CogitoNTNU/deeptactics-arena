@@ -25,5 +25,6 @@ mcts:
   dirichlet_alpha: 0.03
   epsilon: 0.25
   num_simulations: 200
+  eval_batch_size: 32
 
 env_name: chess

@@ -1,12 +1,12 @@
 #!/bin/sh
-#SBATCH --account=studiegrupper-cogito
+#SBATCH --account=share-ie-idi
 #SBATCH --job-name="deeptactics"
 #SBATCH --time=05-00:00:00
 #SBATCH --partition=GPUQ
 #SBATCH --mem=40GB
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=30
+#SBATCH --cpus-per-task=8
 #SBATCH --constraint="(a100|h100|h200)"
 #SBATCH --output=slurm_outputs/output_deeptactics_connectfour.txt
 #SBATCH --error=slurm_outputs/output_deeptactics_connectfour.err
