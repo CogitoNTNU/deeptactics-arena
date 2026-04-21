@@ -129,6 +129,7 @@ def training_loop(config: Configuration):
     num_parallel = config.train.num_parallel_games
     games_played = 0
     epoch_offset = 0
+    lowest_loss = float("inf")
 
     for iteration in range(0, config.train.num_episodes, num_parallel):
         batch_size = min(num_parallel, config.train.num_episodes - iteration)
@@ -155,7 +156,7 @@ def training_loop(config: Configuration):
             )
 
         if len(replay_buffer) >= config.train.min_replay_size:
-            epoch_offset = train(
+            epoch_offset, loss = train(
                 replay_buffer, model, optimizer, config.train, scheduler, epoch_offset
             )
             if iteration % config.num_episodes_to_record == 0:
@@ -164,10 +165,18 @@ def training_loop(config: Configuration):
             wandb.log({"episode": games_played, **eval_metrics})
 
             win_rate = eval_metrics["eval/win_rate_vs_random"]
-            if win_rate > best_win_rate:
+            if win_rate > best_win_rate or loss < lowest_loss:
                 best_win_rate = win_rate
-                torch.save(model.state_dict(), "models/best_model.pt")
-                print(f"New best model saved (win rate: {win_rate:.0%})")
+                lowest_loss = loss
+                model_name = f"best_model_epoch_{epoch_offset}_loss_{loss:.4f}.pt"
+                torch.save(model.state_dict(), f"models/{model_name}")
+                print(
+                    f"New best model saved (win rate: {win_rate:.0%}, loss: {loss:.4f})"
+                )
+                # Upload model artifact to wandb
+                artifact = wandb.Artifact(model_name, type="model")
+                artifact.add_file(f"models/{model_name}")
+                run.log_artifact(artifact)
 
 
 if __name__ == "__main__":

@@ -12,8 +12,8 @@ def train(
     config: TrainConfiguration,
     scheduler: torch.optim.lr_scheduler.LRScheduler,
     epoch_offset: int = 0,
-) -> int:
-    """Train for num_epochs. Returns the new epoch offset."""
+) -> tuple[int, float]:
+    """Train for num_epochs. Returns the new epoch offset and loss."""
     for i in range(config.num_epochs):
         model.train(True)
 
@@ -40,7 +40,7 @@ def train(
             }
         )
 
-    return epoch_offset + config.num_epochs
+    return epoch_offset + config.num_epochs, metrics["loss"]
 
 
 def train_one_epoch(
